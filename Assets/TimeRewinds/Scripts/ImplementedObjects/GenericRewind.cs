@@ -24,9 +24,9 @@ public class GenericRewind : RewindAbstract
         
     }
 
-    protected override void GetSnapshotFromSavedValues(float timestepMove)
+    protected override void GetSnapshotFromSavedValues(float seconds)
     {
-        float position = timestepMove * howManyRecordsPerSecond;
+        float position = seconds * howManyRecordsPerSecond;
 
         if (trackPositionRotation)
             RestorePositionAndRotation(position);
@@ -58,7 +58,7 @@ public class GenericRewind : RewindAbstract
         InitializeParticles(particleSettings);
     }
 
-    protected override void AdditionalRestores(float val)
+    protected override void AdditionalRestores(float seconds)
     {
     }
 }

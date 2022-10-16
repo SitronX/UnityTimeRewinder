@@ -263,15 +263,15 @@ public abstract class RewindAbstract : MonoBehaviour
     }
     #endregion
 
-    private void RestoreBufferPositions(float val)
+    private void RestoreBufferPositions(float seconds)
     {
-        trackedPositionsAndRotation.MoveLastBufferPosition(val* howManyRecordsPerSecond);
-        trackedVelocities.MoveLastBufferPosition(val * howManyRecordsPerSecond);
-        trackedAnimationTimes.MoveLastBufferPosition(val * howManyRecordsPerSecond);
+        trackedPositionsAndRotation.MoveLastBufferPosition(seconds * howManyRecordsPerSecond);
+        trackedVelocities.MoveLastBufferPosition(seconds * howManyRecordsPerSecond);
+        trackedAnimationTimes.MoveLastBufferPosition(seconds * howManyRecordsPerSecond);
 
-        trackedParticleTimes.ForEach(x => x.MoveLastBufferPosition(val * howManyRecordsPerSecond));
-        trackedAudioTimes.MoveLastBufferPosition(val * howManyRecordsPerSecond);
-        AdditionalRestores(val);
+        trackedParticleTimes.ForEach(x => x.MoveLastBufferPosition(seconds * howManyRecordsPerSecond));
+        trackedAudioTimes.MoveLastBufferPosition(seconds * howManyRecordsPerSecond);
+        AdditionalRestores(seconds);
     }
     private void OnTrackingChange(bool val)
     {
@@ -291,14 +291,7 @@ public abstract class RewindAbstract : MonoBehaviour
         trackedAnimationTimes = new CircularBuffer<AnimationValues>(howManyItemsFit);
         trackedParticleTimes = new List<CircularBuffer<ParticleTrackedData>>();
         trackedAudioTimes = new CircularBuffer<AudioTrackedData>(howManyItemsFit);
-        particleSystemsData.ForEach(x => trackedParticleTimes.Add(new CircularBuffer<ParticleTrackedData>(howManyItemsFit)));
-        foreach (CircularBuffer<ParticleTrackedData> i in trackedParticleTimes)
-        {
-            ParticleTrackedData trackedData; 
-            trackedData.particleTime = 0;
-            trackedData.isActive = false;
-            i.WriteLastValue(trackedData);
-        }
+      
         AdditionalResets();
     }
     private void OnDisable()
@@ -317,8 +310,8 @@ public abstract class RewindAbstract : MonoBehaviour
     /// <summary>
     /// Main method to restore saved snapshots for specific object
     /// </summary>
-    /// <param name="timestepMove">Parameter defining how much time to move forward or backwards (eg. -1,1)</param>
-    protected abstract void GetSnapshotFromSavedValues(float timestepMove);
+    /// <param name="seconds">Parameter defining how many seconds we want to view back</param>
+    protected abstract void GetSnapshotFromSavedValues(float seconds);
 
 
 
@@ -331,6 +324,6 @@ public abstract class RewindAbstract : MonoBehaviour
     /// <summary>
     /// Method deleting circullar buffer values, to correct position after rewind for custom variable tracking (method must be used for custom variables)
     /// </summary>
-    /// <param name="val"></param>
-    protected abstract void AdditionalRestores(float timeStepMove);
+    /// <param name="seconds">How many seconds should the circular buffer restore back</param>
+    protected abstract void AdditionalRestores(float seconds);
 }      
