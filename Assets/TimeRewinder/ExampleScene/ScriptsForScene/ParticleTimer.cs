@@ -13,7 +13,7 @@ public class ParticleTimer : MonoBehaviour
     {
         CurrentTimer = timerDefault;
     }
-    void Update()
+    void FixedUpdate()
     {
         CurrentTimer -= Time.deltaTime;
         timeText.text = "Time to disable/enable particles: " + CurrentTimer.ToString("0.0");

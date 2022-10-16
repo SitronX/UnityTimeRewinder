@@ -20,13 +20,9 @@ public class RewindManager : MonoBehaviour
 
 
 
-    IEnumerator coroutine;
+    bool rewinding = false;
     float rewindSeconds = 0;
 
-    private void Start()
-    {
-        coroutine = Rewinding();
-    }
 
     /// <summary>
     /// Variable defining how much into the past should be tracked, after set limit is hit, old values will be overwritten in circular buffer
@@ -42,9 +38,9 @@ public class RewindManager : MonoBehaviour
     public void RewindTimeBySeconds(float seconds)
     {
         TrackingStateCall?.Invoke(false);
-        RewindTimeCall.Invoke(-seconds);
+        RewindTimeCall?.Invoke(-seconds);
         RestoreBuffers?.Invoke(-seconds);
-        TrackingStateCall.Invoke(true);
+        TrackingStateCall?.Invoke(true);
     }
     /// <summary>
     /// Call this method if you want to start rewinding time with ability to preview snapshots. After done rewinding, StopRewindTimeBySeconds() must be called!!!. To update snapshot preview between, call method SetTimeSecondsInRewind()
@@ -55,17 +51,16 @@ public class RewindManager : MonoBehaviour
     {
         rewindSeconds = seconds;
         TrackingStateCall?.Invoke(false);
-        StartCoroutine(coroutine);
+        rewinding = true;
     }
-    IEnumerator Rewinding()
+    private void FixedUpdate()
     {
-        while (true)
+        if (rewinding)
         {
-            RewindTimeCall.Invoke(-rewindSeconds);
-            
-            yield return new WaitForSeconds(Time.fixedDeltaTime);
+            RewindTimeCall?.Invoke(-rewindSeconds);
         }
     }
+  
     /// <summary>
     /// Call this method to update rewind preview while rewind is active (StartRewindTimeBySeconds() method was called before)
     /// </summary>
@@ -79,8 +74,8 @@ public class RewindManager : MonoBehaviour
     /// </summary>
     public void StopRewindTimeBySeconds()
     {
-        StopCoroutine(coroutine);
+        rewinding = false;
         RestoreBuffers?.Invoke(-rewindSeconds);
-        TrackingStateCall.Invoke(true);
+        TrackingStateCall?.Invoke(true);
     }
 }

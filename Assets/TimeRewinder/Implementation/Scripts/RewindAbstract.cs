@@ -69,7 +69,7 @@ public abstract class RewindAbstract : MonoBehaviour
     }
     protected void RestorePositionAndRotation(float position)
     {
-        PositionAndRotationValues valuesToRead = trackedPositionsAndRotation.ReadFromBuffer(position);   
+        PositionAndRotationValues valuesToRead = trackedPositionsAndRotation.ReadFromBuffer(position);
         transform.SetPositionAndRotation(valuesToRead.position, valuesToRead.rotation);
     }
     #endregion
