@@ -5,13 +5,11 @@
 
 # Time Rewinder for Unity
 
-Rewind time in Unity with ease! While there are certain frameworks that let you rewind time in Unity, they are usually quite restrictive and hard to modify. I faced these problems myself when i needed to add time rewind mechanics in my game and none of the solutions that i have found were good enough. That is why i decided to start this open source project that i hope you find usefull. 
+Rewind time in Unity with ease! While there are certain frameworks that let you rewind time in Unity, they are usually quite restrictive and hard to modify. I faced these problems myself when i needed to add time rewind mechanics in my game and none of the solutions that i have found were good enough. That is why i decided to start this open source project that i hope you find usefull. Time Rewinder uses highly efficient circular buffer implementation to store and retrieve the rewinded values.
 
 **Customizability is one of the main points of this project, so it can be used in any of your custom Unity projects and you can track and rewind anything you want!**
 
-The steps how to setup this custom tracking are explained in documentation. Time Rewinder should be also compatible with any Unity version (except maybe prehistoric Unity first releases)
-
-Straight from the box you can start rewinding **positions, rotations, velocities, animators, audios and particle systems**.
+Straight from the box you can start rewinding **positions, rotations, velocities, animators (also all animator layers), audios and particle systems**.
 
 ## How to install
 
@@ -57,7 +55,7 @@ https://user-images.githubusercontent.com/68167377/196240813-ba4c6b79-ebec-461e-
 
 
 
-And here is example and maybe motivation how it could look in actual game, where you customize it for your needs :)
+And here is example and maybe motivation how it could look in actual game (mobile game), where you customize it for your needs :)
 
 
 
