@@ -18,10 +18,28 @@ public class RewindManager : MonoBehaviour
     /// </summary>
     public Action<float> RestoreBuffers { get; set; }
 
+    /// <summary>
+    /// This property returns how many seconds are available for rewind
+    /// </summary>
+    public float HowManySecondsAvailableForRewind { get; set; } = 0;
+
+    /// <summary>
+    /// Tells you if scene is currently being rewinded
+    /// </summary>
+    public bool IsBeingRewinded { get; private set; } = false;
 
 
-    bool rewinding = false;
     float rewindSeconds = 0;
+
+    private void Awake()
+    {
+        RewindManager[] managers= FindObjectsOfType<RewindManager>();       
+
+        if(managers.Length>1)                                               //Check if each scene contains only one script with RewindManager
+        {
+            Debug.LogError("RewindManager cannot be more than once in each scene. Remove the other RewindManager!!!");
+        }
+    }
 
 
     /// <summary>
@@ -33,40 +51,79 @@ public class RewindManager : MonoBehaviour
     /// <summary>
     /// Call this method to rewind time by specified seconds instantly without snapshot preview
     /// </summary>
-    /// <param name="seconds">Parameter defining how many seconds should object rewind to from now.</param>
+    /// <param name="seconds">Parameter defining how many seconds should object rewind to from now (Parameter must be >=0).</param>
 
     public void RewindTimeBySeconds(float seconds)
     {
+        if(seconds>HowManySecondsAvailableForRewind)
+        {
+            Debug.LogError("Not enough stored tracked value!!! Reaching on wrong index. Called rewind should be less than HowManySecondsAvailableForRewind property");
+            return;
+        }
+        if(seconds<0)
+        {
+            Debug.LogError("Parameter in RewindTimeBySeconds() must have positive value!!!");
+            return;
+        }
         TrackingStateCall?.Invoke(false);
-        RewindTimeCall?.Invoke(-seconds);
-        RestoreBuffers?.Invoke(-seconds);
+        RewindTimeCall?.Invoke(seconds);
+        RestoreBuffers?.Invoke(seconds);
         TrackingStateCall?.Invoke(true);
     }
     /// <summary>
     /// Call this method if you want to start rewinding time with ability to preview snapshots. After done rewinding, StopRewindTimeBySeconds() must be called!!!. To update snapshot preview between, call method SetTimeSecondsInRewind()
     /// </summary>
-    /// <param name="seconds">Parameter defining how many seconds before should the rewind preview rewind to</param>
+    /// <param name="seconds">Parameter defining how many seconds before should the rewind preview rewind to (Parameter must be >=0)</param>
     /// <returns></returns>
     public void StartRewindTimeBySeconds(float seconds)
     {
+        if (seconds > HowManySecondsAvailableForRewind)
+        {
+            Debug.LogError("Not enough stored tracked value!!! Reaching on wrong index. Called rewind should be less than HowManySecondsAvailableForRewind property");
+            return;
+        }
+        if (seconds < 0)
+        {
+            Debug.LogError("Parameter in StartRewindTimeBySeconds() must have positive value!!!");
+            return;
+        }
+
         rewindSeconds = seconds;
         TrackingStateCall?.Invoke(false);
-        rewinding = true;
+        IsBeingRewinded = true;
     }
     private void FixedUpdate()
     {
-        if (rewinding)
+        if (IsBeingRewinded)
         {
-            RewindTimeCall?.Invoke(-rewindSeconds);
+            RewindTimeCall?.Invoke(rewindSeconds);
+        }
+        else if (HowManySecondsAvailableForRewind != howManySecondsToTrack)
+        {
+            HowManySecondsAvailableForRewind+=Time.fixedDeltaTime;
+            
+            if (HowManySecondsAvailableForRewind > howManySecondsToTrack)
+                HowManySecondsAvailableForRewind = howManySecondsToTrack;
         }
     }
-  
+
     /// <summary>
     /// Call this method to update rewind preview while rewind is active (StartRewindTimeBySeconds() method was called before)
     /// </summary>
-    /// <param name="seconds">Parameter defining how many seconds should the rewind preview move to</param>
+    /// <param name="seconds">Parameter defining how many seconds should the rewind preview move to (Parameter must be >=0)</param>
     public void SetTimeSecondsInRewind(float seconds)
     {
+        if (seconds > HowManySecondsAvailableForRewind)
+        {
+            Debug.LogError("Not enough stored tracked value!!! Reaching on wrong index. Called rewind should be less than HowManySecondsAvailableForRewind property");
+            return;
+        }
+
+        if (seconds < 0)
+        {
+            Debug.LogError("Parameter in SetTimeSecondsInRewind() must have positive value!!!");
+            return;
+        }
         rewindSeconds = seconds;
     }
     /// <summary>
@@ -74,8 +131,9 @@ public class RewindManager : MonoBehaviour
     /// </summary>
     public void StopRewindTimeBySeconds()
     {
-        rewinding = false;
-        RestoreBuffers?.Invoke(-rewindSeconds);
+        HowManySecondsAvailableForRewind -= rewindSeconds;
+        IsBeingRewinded = false;
+        RestoreBuffers?.Invoke(rewindSeconds);
         TrackingStateCall?.Invoke(true);
     }
 }

@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.PlayerLoop;
 using static UnityEngine.ParticleSystem;
+using Debug = UnityEngine.Debug;
 
 public abstract class RewindAbstract : MonoBehaviour
 {
@@ -35,20 +37,20 @@ public abstract class RewindAbstract : MonoBehaviour
             howManyRecordsPerSecond = 1 / Time.fixedDeltaTime;
 
             IsTracking = true;
+
         }
         else
         {
-            Debug.Log("TimeManager script cannot be found in scene. Time tracking cannot be started. Did you forget to put it into the scene?");
+            Debug.LogError("TimeManager script cannot be found in scene. Time tracking cannot be started. Did you forget to put it into the scene?");
         }
     }
    
-
     private void FixedUpdate()
     {
         if (IsTracking)
             Track();
     }
-
+   
 
 
     #region PositionRotation
@@ -78,6 +80,9 @@ public abstract class RewindAbstract : MonoBehaviour
     CircularBuffer<Vector3> trackedVelocities;
     protected void TrackVelocity()
     {
+        if (body == null)
+            Debug.LogError("Cannot find Rigidbody on the object, while TrackVelocity() is being called!!!");
+
         trackedVelocities.WriteLastValue(body.velocity);
     }
     protected void RestoreVelocity(float position)
@@ -87,7 +92,7 @@ public abstract class RewindAbstract : MonoBehaviour
     #endregion
 
     #region Animator
-    CircularBuffer<AnimationValues> trackedAnimationTimes;
+    List<CircularBuffer<AnimationValues>> trackedAnimationTimes;        //All animator layers are tracked
     public struct AnimationValues
     {
         public float animationStateTime;
@@ -95,19 +100,28 @@ public abstract class RewindAbstract : MonoBehaviour
     }
     protected void TrackAnimator()
     {
+        if(animator == null)
+            Debug.LogError("Cannot find Animator on the object, while TrackAnimator() is being called!!!");
+        
         animator.speed = 1;
 
-        AnimationValues valuesToWrite; 
-        valuesToWrite.animationStateTime = animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
-        valuesToWrite.animationHash = animator.GetCurrentAnimatorStateInfo(0).shortNameHash;
-        trackedAnimationTimes.WriteLastValue(valuesToWrite);
+        for (int i=0;i<animator.layerCount;i++)
+        {
+            AnimationValues valuesToWrite;
+            valuesToWrite.animationStateTime = animator.GetCurrentAnimatorStateInfo(i).normalizedTime;
+            valuesToWrite.animationHash = animator.GetCurrentAnimatorStateInfo(i).shortNameHash;
+            trackedAnimationTimes[i].WriteLastValue(valuesToWrite);
+        }     
     }
     protected void RestoreAnimator(float position)
     {
         animator.speed = 0;
         
-        AnimationValues readValues = trackedAnimationTimes.ReadFromBuffer(position);
-        animator.Play(readValues.animationHash, -1, readValues.animationStateTime);      
+        for(int i=0;i<animator.layerCount;i++)
+        {
+            AnimationValues readValues = trackedAnimationTimes[i].ReadFromBuffer(position);
+            animator.Play(readValues.animationHash,i, readValues.animationStateTime);
+        }         
     }
     #endregion
 
@@ -121,7 +135,10 @@ public abstract class RewindAbstract : MonoBehaviour
 
     protected void TrackAudio()
     {
-        
+        if(audioSource==null)
+            Debug.LogError("Cannot find AudioSource on the object, while TrackAudio() is being called!!!");
+
+
         audioSource.volume = 1;
         AudioTrackedData dataToWrite;
         dataToWrite.time = audioSource.time;
@@ -195,6 +212,10 @@ public abstract class RewindAbstract : MonoBehaviour
     /// <param name="resetParticleTo">Variable defining to which second should tracking return to after particle tracking limit was hit. Play with this variable to get better results, so the tracking resets are not much noticeable.</param>
     protected void InitializeParticles(ParticlesSetting particleSettings)
     {
+        if(particleSettings.particlesData.Any(x=>x.particleSystemEnabler==null||x.particleSystem==null))
+        {
+            Debug.LogError("Initialized particle system are missing data. Either Particle System or Particle System Enabler is not filled for some values");
+        }
         particleSystemsData = particleSettings.particlesData;
         particleTimeLimiter = particleSettings.particleLimiter;
         particleResetTimeTo = particleSettings.particleResetTo;
@@ -211,7 +232,7 @@ public abstract class RewindAbstract : MonoBehaviour
     {
         if(particleSystemsData==null)
         {
-            Debug.Log("Particles not initialized!!! Call InitializeParticles() before the tracking starts");
+            Debug.LogError("Particles not initialized!!! Call InitializeParticles() before the tracking starts");
             return;
         }
 
@@ -267,7 +288,7 @@ public abstract class RewindAbstract : MonoBehaviour
     {
         trackedPositionsAndRotation.MoveLastBufferPosition(seconds * howManyRecordsPerSecond);
         trackedVelocities.MoveLastBufferPosition(seconds * howManyRecordsPerSecond);
-        trackedAnimationTimes.MoveLastBufferPosition(seconds * howManyRecordsPerSecond);
+        trackedAnimationTimes.ForEach(x=>x.MoveLastBufferPosition(seconds * howManyRecordsPerSecond));
 
         trackedParticleTimes.ForEach(x => x.MoveLastBufferPosition(seconds * howManyRecordsPerSecond));
         trackedAudioTimes.MoveLastBufferPosition(seconds * howManyRecordsPerSecond);
@@ -288,7 +309,14 @@ public abstract class RewindAbstract : MonoBehaviour
         
         trackedPositionsAndRotation = new CircularBuffer<PositionAndRotationValues>(howManyItemsFit);
         trackedVelocities = new CircularBuffer<Vector3>(howManyItemsFit);
-        trackedAnimationTimes = new CircularBuffer<AnimationValues>(howManyItemsFit);
+        trackedAnimationTimes = new List<CircularBuffer<AnimationValues>>();
+        if(animator!=null)
+        {
+            for (int i = 0; i < animator.layerCount; i++)
+            {
+                trackedAnimationTimes.Add(new CircularBuffer<AnimationValues>(howManyItemsFit));
+            }
+        }    
         trackedParticleTimes = new List<CircularBuffer<ParticleTrackedData>>();
         trackedAudioTimes = new CircularBuffer<AudioTrackedData>(howManyItemsFit);
       
@@ -316,13 +344,13 @@ public abstract class RewindAbstract : MonoBehaviour
 
 
     /// <summary>
-    /// Method reseting circullar buffer values usually on SceneReload  (method must be used for custom variables)
+    /// Method reseting circular buffer values usually on SceneReload  (method must be used for custom variables)
     /// </summary>
     protected abstract void AdditionalResets();
 
 
     /// <summary>
-    /// Method deleting circullar buffer values, to correct position after rewind for custom variable tracking (method must be used for custom variables)
+    /// Method deleting circular buffer values, to correct position after rewind for custom variable tracking (method must be used for custom variables)
     /// </summary>
     /// <param name="seconds">How many seconds should the circular buffer restore back</param>
     protected abstract void AdditionalRestores(float seconds);

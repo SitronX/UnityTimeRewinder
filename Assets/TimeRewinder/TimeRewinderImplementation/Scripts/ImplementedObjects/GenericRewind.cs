@@ -16,7 +16,7 @@ public class GenericRewind : RewindAbstract
     [SerializeField] bool trackAudio;
     [SerializeField] bool trackParticles;
 
-    [Tooltip("Fill particle options only if you check Track Particles")]
+    [Tooltip("Fill particle settings only if you check Track Particles")]
     [SerializeField] ParticlesSetting particleSettings;
 
     protected override void AdditionalResets()
