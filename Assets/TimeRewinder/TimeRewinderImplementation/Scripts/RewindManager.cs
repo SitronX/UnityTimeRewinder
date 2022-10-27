@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class RewindManager : MonoBehaviour
@@ -8,20 +6,22 @@ public class RewindManager : MonoBehaviour
     /// <summary>
     /// Action is not meant to be used by users. It shares data between classes. You probably want to use prepared methods like: RewindTimeBySeconds(), StartRewindTimeBySeconds(), SetTimeSecondsInRewind(), StopRewindTimeBySeconds()
     /// </summary>
-    public Action<float> RewindTimeCall { get; set; }
+    public static Action<float> RewindTimeCall { get; set; }
     /// <summary>
     /// Action is not meant to be used by users. It shares data between classes. You probably want to use prepared methods like: RewindTimeBySeconds(), StartRewindTimeBySeconds(), SetTimeSecondsInRewind(), StopRewindTimeBySeconds()
     /// </summary>
-    public Action<bool> TrackingStateCall { get; set; }
+    public static Action<bool> TrackingStateCall { get; set; }
     /// <summary>
     /// Action is not meant to be used by users. It shares data between classes. You probably want to use prepared methods like: RewindTimeBySeconds(), StartRewindTimeBySeconds(), SetTimeSecondsInRewind(), StopRewindTimeBySeconds()
     /// </summary>
-    public Action<float> RestoreBuffers { get; set; }
-
+    public static Action<float> RestoreBuffers { get; set; }
+    
+    
     /// <summary>
     /// This property returns how many seconds are available for rewind
     /// </summary>
-    public float HowManySecondsAvailableForRewind { get; set; } = 0;
+    public float HowManySecondsAvailableForRewind { get; private set; }
+
 
     /// <summary>
     /// Tells you if scene is currently being rewinded
@@ -31,11 +31,19 @@ public class RewindManager : MonoBehaviour
 
     float rewindSeconds = 0;
 
+    private void OnEnable()
+    {
+        HowManySecondsAvailableForRewind = 0;
+    }
     private void Awake()
     {
-        RewindManager[] managers= FindObjectsOfType<RewindManager>();       
+        RewindTimeCall = null;
+        TrackingStateCall = null;
+        RestoreBuffers = null;
 
-        if(managers.Length>1)                                               //Check if each scene contains only one script with RewindManager
+        RewindManager[] managers= FindObjectsOfType<RewindManager>();
+
+        if (managers.Length>1)                                               //Check if each scene contains only one script with RewindManager
         {
             Debug.LogError("RewindManager cannot be more than once in each scene. Remove the other RewindManager!!!");
         }
@@ -45,14 +53,13 @@ public class RewindManager : MonoBehaviour
     /// <summary>
     /// Variable defining how much into the past should be tracked, after set limit is hit, old values will be overwritten in circular buffer
     /// </summary>
-    public readonly float howManySecondsToTrack = 12;
+    public static readonly float howManySecondsToTrack = 12;
 
 
     /// <summary>
     /// Call this method to rewind time by specified seconds instantly without snapshot preview
     /// </summary>
     /// <param name="seconds">Parameter defining how many seconds should object rewind to from now (Parameter must be >=0).</param>
-
     public void RewindTimeBySeconds(float seconds)
     {
         if(seconds>HowManySecondsAvailableForRewind)
@@ -127,7 +134,7 @@ public class RewindManager : MonoBehaviour
         rewindSeconds = seconds;
     }
     /// <summary>
-    /// Call this method to stop previewing rewind state and effectively set current time to the rewind state
+    /// Call this method to stop previewing rewind state and effectively set current values to the rewind state
     /// </summary>
     public void StopRewindTimeBySeconds()
     {

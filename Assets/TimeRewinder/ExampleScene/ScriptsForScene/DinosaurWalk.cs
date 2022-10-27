@@ -1,12 +1,12 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class DinosaurWalk : MonoBehaviour
 {
-    [SerializeField] GameObject dinosaur;
     [SerializeField] bool isWalking = false;        //The trick is that this variable is tracked in dinosaur animator
+
+
+    [SerializeField] GameObject dinosaur;
     [SerializeField] Text rewindIndication;
     void FixedUpdate()
     {

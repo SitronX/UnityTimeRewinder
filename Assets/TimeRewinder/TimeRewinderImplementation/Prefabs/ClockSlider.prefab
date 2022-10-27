@@ -175,7 +175,7 @@ AudioSource:
   m_PlayOnAwake: 0
   m_Volume: 0.5
   m_Pitch: 1
-  Loop: 0
+  Loop: 1
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
@@ -270,8 +270,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   slider: {fileID: 4065960114815223673}
-  rewindSound: {fileID: 4065960114815223556}
   rewindManager: {fileID: 4065960116027654745}
+  rewindSound: {fileID: 4065960114815223556}
 --- !u!1 &4065960114903631333
 GameObject:
   m_ObjectHideFlags: 0

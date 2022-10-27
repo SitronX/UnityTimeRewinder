@@ -1,36 +1,20 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 
-//This script is showing setup of simple one custom variable tracking
+//This script is showing setup of simple custom variable tracking
 public class ScaleRewind : RewindAbstract           
 {
     [SerializeField] Slider scaleSlider;
 
-    CircularBuffer<Vector3> trackedObjectScales;        //For storing data, use this CircularBuffer class
+    CircularBuffer<Vector3> trackedObjectScales;       //For storing data, use this CircularBuffer class
 
-
-
-    //As stated in RewindAbstract class, this method must be filled with circular buffer that is used for custom variable tracking
-    //Method must contain implementation of reset of the circullar buffer to work correctly
-    protected override void AdditionalResets()
+    private void Start()
     {
-        trackedObjectScales = new CircularBuffer<Vector3>(howManyItemsFit);     //For time rewinding purposes, give the CircularBuffer constructor this variable (howManyItemsFit)
+        trackedObjectScales = new CircularBuffer<Vector3>();        //Circular buffer must be initialized in start method, it cannot use field initialization
     }
 
-
-    //After rewinding the time, values that were previously stored in buffer are obsolete. 
-    //This method must contain implementation of moving bufferPosition for next write to correct position in regards to time rewind
-    protected override void AdditionalRestores(float seconds)
-    {
-        trackedObjectScales.MoveLastBufferPosition(seconds * howManyRecordsPerSecond);  //For time rewinding purposes, use these attributes (seconds*howManyRecordsPerSecond)
-    }
-
-  
-
-    //In this method define what will be tracked. In our case we want to track already implemented audio tracking,particle tracking + new custom added variable scale tracking
+    //In this method define what will be tracked. In our case we want only track our custom added variable scale tracking
     protected override void Track()
     {
         TrackObjectScale();      
@@ -38,13 +22,10 @@ public class ScaleRewind : RewindAbstract
 
 
     //In this method define, what will be restored on time rewinding. In our case we want to restore object scale
-    protected override void GetSnapshotFromSavedValues(float seconds)
+    protected override void Rewind(float seconds)
     {
-        float position = seconds * howManyRecordsPerSecond;        //For time rewinding purposes, use this calculation to restore correct position value (seconds*howManyRecordsPerSecond)
-
-        RestoreObjectScale(position);
+        RestoreObjectScale(seconds);
     }
-
 
 
     // This is an example of custom variable tracking
@@ -53,16 +34,15 @@ public class ScaleRewind : RewindAbstract
         trackedObjectScales.WriteLastValue(transform.localScale);
     }
 
-
     
     // This is an example of custom variable restoring
-    public void RestoreObjectScale(float position)
+    public void RestoreObjectScale(float seconds)
     {
-        transform.localScale = trackedObjectScales.ReadFromBuffer(position);
+        transform.localScale = trackedObjectScales.ReadFromBuffer(seconds);
 
         //While we are at it, we can also additionaly restore slider value to match the object scale 
         scaleSlider.value = transform.localScale.x;
     }
 
-    //Just for demonstration object scaling was chosen, otherwise it would be probably better to track and restore slider value, which would then also update the object scale accordingly)  
+    //Just for demonstration object scaling was chosen, otherwise it would be probably better to track and restore slider value, which would then also update the object scale accordingly
 }

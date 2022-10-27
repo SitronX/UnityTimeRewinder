@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEditor;
-using UnityEngine;
-using UnityEngine.Android;
-using UnityEngine.Timeline;
-using static RewindAbstract;
+﻿using UnityEngine;
 
 public class GenericRewind : RewindAbstract
 {
@@ -18,25 +11,19 @@ public class GenericRewind : RewindAbstract
     [Tooltip("Fill particle settings only if you check Track Particles")]
     [SerializeField] ParticlesSetting particleSettings;
 
-    protected override void AdditionalResets()
+    protected override void Rewind(float seconds)
     {
-        
-    }
-
-    protected override void GetSnapshotFromSavedValues(float seconds)
-    {
-        float position = seconds * howManyRecordsPerSecond;
 
         if (trackPositionRotation)
-            RestorePositionAndRotation(position);
+            RestorePositionAndRotation(seconds);
         if (trackVelocity)
-            RestoreVelocity(position);
+            RestoreVelocity(seconds);
         if (trackAnimator)
-            RestoreAnimator(position);
+            RestoreAnimator(seconds);
         if (trackParticles)
-            RestoreParticles(position);
+            RestoreParticles(seconds);
         if(trackAudio)
-            RestoreAudio(position);
+            RestoreAudio(seconds);
     }
 
     protected override void Track()
@@ -57,8 +44,5 @@ public class GenericRewind : RewindAbstract
         InitializeParticles(particleSettings);
     }
 
-    protected override void AdditionalRestores(float seconds)
-    {
-    }
 }
 

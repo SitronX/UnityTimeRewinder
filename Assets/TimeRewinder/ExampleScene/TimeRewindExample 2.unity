@@ -3023,7 +3023,7 @@ Animator:
   m_Avatar: {fileID: 0}
   m_Controller: {fileID: 9100000, guid: 2802aaa2dcc380c498f4891db99132fb, type: 2}
   m_CullingMode: 0
-  m_UpdateMode: 0
+  m_UpdateMode: 1
   m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
   m_WarningMessage: 
@@ -3042,8 +3042,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 14bc155fbb04eba44b3a343b40fb836c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dinosaur: {fileID: 3843793275252677193}
   isWalking: 0
+  dinosaur: {fileID: 3843793275252677193}
   rewindIndication: {fileID: 354136547}
 --- !u!114 &3843793275252677196
 MonoBehaviour:

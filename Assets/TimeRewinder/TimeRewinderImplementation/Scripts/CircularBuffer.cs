@@ -1,21 +1,34 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class CircularBuffer <T>
-{
+{ 
     T[] dataArray;
     int bufferCurrentPosition = -1;
     int bufferCapacity;
+    float howManyRecordsPerSecond;
+
     /// <summary>
     /// Use circular buffer structure for time rewinding
     /// </summary>
-    /// <param name="bufferSize">This parameter is defining how big should circular buffer be (For time rewinding purposes, the variable howManyItemsFit from RewindAbstract class is correct option)</param>
-    public CircularBuffer(int bufferSize)
+    public CircularBuffer()
     {
-        bufferCapacity=bufferSize;
-        dataArray = new T[bufferSize];
+        try
+        {
+            howManyRecordsPerSecond = Time.timeScale / Time.fixedDeltaTime;
+            bufferCapacity = (int)(RewindManager.howManySecondsToTrack *howManyRecordsPerSecond);
+            dataArray = new T[bufferCapacity];
+            RewindManager.RestoreBuffers += OnBuffersRestore;
+        }
+        catch
+        {
+            Debug.LogError("Circular buffer cannot use field initialization (Time.fixedDeltaTime is unknown yet). Initialize Circular buffer in Start() method!");
+        }        
     }
+    
+    /// <summary>
+    /// Write value to the last position of the buffer
+    /// </summary>
+    /// <param name="val"></param>
     public void WriteLastValue(T val)
     {
         bufferCurrentPosition++;
@@ -38,35 +51,40 @@ public class CircularBuffer <T>
         return dataArray[bufferCurrentPosition];
     }
     /// <summary>
-    /// Read specified value from circullar buffer
+    /// Read specified value from circular buffer
     /// </summary>
-    /// <param name="howManyBeforeLast">Variable defining what is the position of the value to be read in relation to the last written value to the buffer (eg. howManyBeforeLast=5 and lastPositionInBuffer=300 then function will return the value on position 295 value)</param>
+    /// <param name="seconds">Variable defining how many seconds into the past should be read (eg. seconds=5 then function will return the values that tracked object had exactly 5 seconds ago)</param>
     /// <returns></returns>
-    public T ReadFromBuffer(float howManyBeforeLast)
+    public T ReadFromBuffer(float seconds)
     {
-        if((bufferCurrentPosition- (int)howManyBeforeLast) <0)
+        int howManyBeforeLast = (int)(howManyRecordsPerSecond * seconds);
+
+        if((bufferCurrentPosition-howManyBeforeLast) <0)
         {
-            int showingIndex = bufferCapacity - ((int)howManyBeforeLast - bufferCurrentPosition);
+            int showingIndex = bufferCapacity - (howManyBeforeLast - bufferCurrentPosition);
             return dataArray[showingIndex];
         }
         else
         {
-            return dataArray[bufferCurrentPosition - (int)howManyBeforeLast];
+            return dataArray[bufferCurrentPosition - howManyBeforeLast];
         }
     }
-    /// <summary>
-    /// Delete specified value from circullar buffer
-    /// </summary>
-    /// <param name="howManyBeforeLast">Variable defining what is the position that the circular buffer should move to to prepare for next write (eg. howManyBeforeLast=5 and lastPositionInBuffer=300 then function will move buffer position to 295. Which means that in next write, value that is now on position 295 will be overwritten)</param>
-    public void MoveLastBufferPosition(float howManyBeforeLast)
+    private void MoveLastBufferPosition(float seconds)
     {
-        if ((bufferCurrentPosition - (int)howManyBeforeLast) < 0)
+        int howManyBeforeLast=(int)(howManyRecordsPerSecond*seconds);
+
+        if ((bufferCurrentPosition - howManyBeforeLast) < 0)
         {
-            bufferCurrentPosition = bufferCapacity - ((int)howManyBeforeLast - bufferCurrentPosition);
+            bufferCurrentPosition = bufferCapacity - (howManyBeforeLast - bufferCurrentPosition);
         }
         else
         {
-            bufferCurrentPosition -= (int)howManyBeforeLast;
+            bufferCurrentPosition -= howManyBeforeLast;
         }     
     }
+    private void OnBuffersRestore(float seconds)
+    {
+        MoveLastBufferPosition(seconds);
+    }
+
 }
