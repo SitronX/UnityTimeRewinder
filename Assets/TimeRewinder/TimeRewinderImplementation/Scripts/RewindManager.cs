@@ -37,10 +37,6 @@ public class RewindManager : MonoBehaviour
     }
     private void Awake()
     {
-        RewindTimeCall = null;
-        TrackingStateCall = null;
-        RestoreBuffers = null;
-
         RewindManager[] managers= FindObjectsOfType<RewindManager>();
 
         if (managers.Length>1)                                               //Check if each scene contains only one script with RewindManager
