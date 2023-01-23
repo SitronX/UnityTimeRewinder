@@ -61,5 +61,11 @@ And here is example and maybe motivation how it could look in actual game (mobil
 
 https://user-images.githubusercontent.com/68167377/196215814-45e4667b-748a-4eff-a2ce-8c62b9d90f29.mp4
 
+## Coverage
+
+Here you can watch nice video by SpeedTutor covering this asset
+
+[![Watch the video](https://img.youtube.com/vi/4BiPytgJmVo/maxresdefault.jpg)](https://www.youtube.com/watch?v=4BiPytgJmVo)
+
 
 
