@@ -3013,7 +3013,7 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
 --- !u!95 &3843793275252677194
 Animator:
-  serializedVersion: 3
+  serializedVersion: 5
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -3026,10 +3026,11 @@ Animator:
   m_UpdateMode: 1
   m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorControllerStateOnDisable: 0
+  m_KeepAnimatorStateOnDisable: 0
 --- !u!114 &3843793275252677195
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3057,7 +3058,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b1853014c10a6eb46a8363fdc11758e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  trackPositionRotation: 1
+  trackTransform: 1
   trackVelocity: 0
   trackAnimator: 1
   trackAudio: 0

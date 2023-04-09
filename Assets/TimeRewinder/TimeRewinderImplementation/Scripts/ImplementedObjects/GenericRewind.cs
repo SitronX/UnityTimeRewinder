@@ -2,7 +2,8 @@
 
 public class GenericRewind : RewindAbstract
 {
-    [SerializeField] bool trackPositionRotation;
+    [Tooltip("Tracking Position,Rotation and Scale")]
+    [SerializeField] bool trackTransform;
     [SerializeField] bool trackVelocity;
     [SerializeField] bool trackAnimator;
     [SerializeField] bool trackAudio;
@@ -14,8 +15,8 @@ public class GenericRewind : RewindAbstract
     protected override void Rewind(float seconds)
     {
 
-        if (trackPositionRotation)
-            RestorePositionAndRotation(seconds);
+        if (trackTransform)
+            RestoreTransform(seconds);
         if (trackVelocity)
             RestoreVelocity(seconds);
         if (trackAnimator)
@@ -28,8 +29,8 @@ public class GenericRewind : RewindAbstract
 
     protected override void Track()
     {
-        if (trackPositionRotation)
-            TrackPositionAndRotation();
+        if (trackTransform)
+            TrackTransform();
         if (trackVelocity)
             TrackVelocity();
         if (trackAnimator)

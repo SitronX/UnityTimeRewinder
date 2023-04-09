@@ -265,7 +265,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b1853014c10a6eb46a8363fdc11758e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  trackPositionRotation: 0
+  trackTransform: 0
   trackVelocity: 0
   trackAnimator: 0
   trackAudio: 1
@@ -634,7 +634,7 @@ Transform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!95 &184878769
 Animator:
-  serializedVersion: 3
+  serializedVersion: 5
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -647,10 +647,11 @@ Animator:
   m_UpdateMode: 1
   m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorControllerStateOnDisable: 0
+  m_KeepAnimatorStateOnDisable: 0
 --- !u!114 &184878770
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -663,7 +664,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b1853014c10a6eb46a8363fdc11758e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  trackPositionRotation: 0
+  trackTransform: 0
   trackVelocity: 0
   trackAnimator: 1
   trackAudio: 1
@@ -1185,7 +1186,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 574113248}
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: 0, z: 0.73}
+  m_LocalPosition: {x: 0, y: 0, z: 0.5489}
   m_LocalScale: {x: 0.01, y: 0.01, z: 0.01}
   m_Children: []
   m_Father: {fileID: 94201997}
@@ -1194,7 +1195,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: -0.030000687, y: 1.5199999}
-  m_SizeDelta: {x: 370.1934, y: 249.6435}
+  m_SizeDelta: {x: 370.1934, y: 285.8613}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &574113250
 MonoBehaviour:
@@ -1229,9 +1230,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: '-POSITION
-
-    -ROTATION
+  m_Text: '-TRANSFORM
 
     -VELOCITY
 
@@ -2164,7 +2163,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b1853014c10a6eb46a8363fdc11758e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  trackPositionRotation: 1
+  trackTransform: 1
   trackVelocity: 1
   trackAnimator: 0
   trackAudio: 0
@@ -3649,7 +3648,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1871628336}
   m_Layer: 0
-  m_Name: PositionRotationVelocityRewind----ENABLE THIS OBJECT TO TEST EXAMPLE
+  m_Name: TransformVelocityRewind----ENABLE THIS OBJECT TO TEST EXAMPLE
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

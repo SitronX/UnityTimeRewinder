@@ -32,8 +32,8 @@ public abstract class RewindAbstract : MonoBehaviour
             Debug.LogError("TimeManager script cannot be found in scene. Time tracking cannot be started. Did you forget to put it into the scene?");
         }
 
-        trackedPositionsAndRotation = new CircularBuffer<PositionAndRotationValues>();
-        trackedVelocities = new CircularBuffer<Vector3>();
+        trackedTransformValues = new CircularBuffer<TransformValues>();
+        trackedVelocities = new CircularBuffer<VelocityValues>();
         trackedAnimationTimes = new List<CircularBuffer<AnimationValues>>();
         if (animator != null)
             for (int i = 0; i < animator.layerCount; i++)
@@ -47,50 +47,63 @@ public abstract class RewindAbstract : MonoBehaviour
             Track();
     }
 
-    #region PositionRotation
+    #region Transform
 
-    CircularBuffer<PositionAndRotationValues> trackedPositionsAndRotation;
-    public struct PositionAndRotationValues
+    CircularBuffer<TransformValues> trackedTransformValues;
+    public struct TransformValues
     {
         public Vector3 position;
         public Quaternion rotation;
+        public Vector3 scale;
     }
     
     /// <summary>
     /// Call this method in Track() if you want to track object Position and Rotation
     /// </summary>
-    protected void TrackPositionAndRotation()
+    protected void TrackTransform()
     {
-        PositionAndRotationValues valuesToWrite;
+        TransformValues valuesToWrite;
         valuesToWrite.position = transform.position;
         valuesToWrite.rotation = transform.rotation;
-        trackedPositionsAndRotation.WriteLastValue(valuesToWrite);
+        valuesToWrite.scale = transform.localScale;
+        trackedTransformValues.WriteLastValue(valuesToWrite);
     }
     /// <summary>
     /// Call this method in GetSnapshotFromSavedValues() to restore Position and Rotation
     /// </summary>
-    protected void RestorePositionAndRotation(float seconds)
+    protected void RestoreTransform(float seconds)
     {
-        PositionAndRotationValues valuesToRead = trackedPositionsAndRotation.ReadFromBuffer(seconds);
+        TransformValues valuesToRead = trackedTransformValues.ReadFromBuffer(seconds);
         transform.SetPositionAndRotation(valuesToRead.position, valuesToRead.rotation);
+        transform.localScale= valuesToRead.scale;
     }
     #endregion
 
     #region Velocity
-    CircularBuffer<Vector3> trackedVelocities;
+    public struct VelocityValues
+    {
+        public Vector3 velocity;
+        public Vector3 angularVelocity;
+    }
+    CircularBuffer<VelocityValues> trackedVelocities;
     /// <summary>
     /// Call this method in Track() if you want to track velocity of Rigidbody
     /// </summary>
     protected void TrackVelocity()
     {
-
         if (body != null)
         {
-            trackedVelocities.WriteLastValue(body.velocity);            
+            VelocityValues valuesToWrite;
+            valuesToWrite.velocity= body.velocity;
+            valuesToWrite.angularVelocity = body.angularVelocity;
+            trackedVelocities.WriteLastValue(valuesToWrite);            
         }
         else if (body2!=null)
         {
-            trackedVelocities.WriteLastValue(body2.velocity);
+            VelocityValues valuesToWrite;
+            valuesToWrite.velocity = body2.velocity;
+            valuesToWrite.angularVelocity = new Vector3(body2.angularVelocity,0,0);
+            trackedVelocities.WriteLastValue(valuesToWrite);
         }
         else
         {
@@ -104,11 +117,15 @@ public abstract class RewindAbstract : MonoBehaviour
     {   
         if(body!=null)
         {
-            body.velocity = trackedVelocities.ReadFromBuffer(seconds);
+            VelocityValues valuesToRead= trackedVelocities.ReadFromBuffer(seconds);
+            body.velocity = valuesToRead.velocity;
+            body.angularVelocity = valuesToRead.angularVelocity;
         }
         else
         {
-            body2.velocity = trackedVelocities.ReadFromBuffer(seconds);
+            VelocityValues valuesToRead = trackedVelocities.ReadFromBuffer(seconds);
+            body2.velocity = valuesToRead.velocity;
+            body2.angularVelocity = valuesToRead.angularVelocity.x;
         }
     }
     #endregion

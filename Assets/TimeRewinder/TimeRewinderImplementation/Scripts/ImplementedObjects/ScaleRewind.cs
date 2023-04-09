@@ -1,7 +1,12 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 
 
+/// <summary>
+/// In latest version, Scale tracking/rewind was added defaultly to GenericRewind alongside with tracking position and rotation. Script is still here to only show how it internally works in the simplest way possible
+/// </summary>
+[Obsolete]
 //This script is showing setup of simple custom variable tracking
 public class ScaleRewind : RewindAbstract           
 {

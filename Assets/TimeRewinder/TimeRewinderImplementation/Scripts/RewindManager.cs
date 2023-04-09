@@ -31,21 +31,6 @@ public class RewindManager : MonoBehaviour
 
     float rewindSeconds = 0;
 
-    private void OnEnable()
-    {
-        HowManySecondsAvailableForRewind = 0;
-    }
-    private void Awake()
-    {
-        RewindManager[] managers= FindObjectsOfType<RewindManager>();
-
-        if (managers.Length>1)                                               //Check if each scene contains only one script with RewindManager
-        {
-            Debug.LogError("RewindManager cannot be more than once in each scene. Remove the other RewindManager!!!");
-        }
-    }
-
-
     /// <summary>
     /// Variable defining how much into the past should be tracked, after set limit is hit, old values will be overwritten in circular buffer
     /// </summary>
@@ -80,34 +65,11 @@ public class RewindManager : MonoBehaviour
     /// <returns></returns>
     public void StartRewindTimeBySeconds(float seconds)
     {
-        if (seconds > HowManySecondsAvailableForRewind)
-        {
-            Debug.LogError("Not enough stored tracked value!!! Reaching on wrong index. Called rewind should be less than HowManySecondsAvailableForRewind property");
-            return;
-        }
-        if (seconds < 0)
-        {
-            Debug.LogError("Parameter in StartRewindTimeBySeconds() must have positive value!!!");
-            return;
-        }
+        CheckReachingOutOfBounds(seconds);
 
         rewindSeconds = seconds;
         TrackingStateCall?.Invoke(false);
         IsBeingRewinded = true;
-    }
-    private void FixedUpdate()
-    {
-        if (IsBeingRewinded)
-        {
-            RewindTimeCall?.Invoke(rewindSeconds);
-        }
-        else if (HowManySecondsAvailableForRewind != howManySecondsToTrack)
-        {
-            HowManySecondsAvailableForRewind+=Time.fixedDeltaTime;
-            
-            if (HowManySecondsAvailableForRewind > howManySecondsToTrack)
-                HowManySecondsAvailableForRewind = howManySecondsToTrack;
-        }
     }
 
     /// <summary>
@@ -116,17 +78,7 @@ public class RewindManager : MonoBehaviour
     /// <param name="seconds">Parameter defining how many seconds should the rewind preview move to (Parameter must be >=0)</param>
     public void SetTimeSecondsInRewind(float seconds)
     {
-        if (seconds > HowManySecondsAvailableForRewind)
-        {
-            Debug.LogError("Not enough stored tracked value!!! Reaching on wrong index. Called rewind should be less than HowManySecondsAvailableForRewind property");
-            return;
-        }
-
-        if (seconds < 0)
-        {
-            Debug.LogError("Parameter in SetTimeSecondsInRewind() must have positive value!!!");
-            return;
-        }
+        CheckReachingOutOfBounds(seconds);
         rewindSeconds = seconds;
     }
     /// <summary>
@@ -138,5 +90,46 @@ public class RewindManager : MonoBehaviour
         IsBeingRewinded = false;
         RestoreBuffers?.Invoke(rewindSeconds);
         TrackingStateCall?.Invoke(true);
+    }
+    private void CheckReachingOutOfBounds(float seconds)
+    {
+        if (seconds > HowManySecondsAvailableForRewind)
+        {
+            Debug.LogError("Not enough stored tracked value!!! Reaching on wrong index. Called rewind should be less than HowManySecondsAvailableForRewind property");
+            return;
+        }
+        if (seconds < 0)
+        {
+            Debug.LogError("Parameter in StartRewindTimeBySeconds() must have positive value!!!");
+            return;
+        }
+    }
+   
+    private void Awake()
+    {
+        RewindManager[] managers = FindObjectsOfType<RewindManager>();
+
+        if (managers.Length > 1)                                               //Check if each scene contains only one script with RewindManager
+        {
+            Debug.LogError("RewindManager cannot be more than once in each scene. Remove the other RewindManager!!!");
+        }
+    }
+    private void OnEnable()
+    {
+        HowManySecondsAvailableForRewind = 0;
+    }
+    private void FixedUpdate()
+    {
+        if (IsBeingRewinded)
+        {
+            RewindTimeCall?.Invoke(rewindSeconds);
+        }
+        else if (HowManySecondsAvailableForRewind != howManySecondsToTrack)
+        {
+            HowManySecondsAvailableForRewind += Time.fixedDeltaTime;
+
+            if (HowManySecondsAvailableForRewind > howManySecondsToTrack)
+                HowManySecondsAvailableForRewind = howManySecondsToTrack;
+        }
     }
 }
