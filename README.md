@@ -9,7 +9,7 @@ Rewind time in Unity with ease! While there are certain frameworks that let you 
 
 **Customizability is one of the main points of this project, so it can be used in any of your custom Unity projects and you can track and rewind anything you want!**
 
-Straight from the box you can start rewinding **positions, rotations, velocities, animators (also all animator layers), audios and particle systems**.
+Straight from the box you can start rewinding **Transforms (position, rotation, scale), velocities, animators (also all animator layers), audios and particle systems**.
 
 ## How to install
 
