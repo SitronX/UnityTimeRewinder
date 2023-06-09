@@ -7,10 +7,9 @@ public class GenericRewind : RewindAbstract
     [SerializeField] bool trackVelocity;
     [SerializeField] bool trackAnimator;
     [SerializeField] bool trackAudio;
-    [SerializeField] bool trackParticles;
 
-    [Tooltip("Fill particle settings only if you check Track Particles")]
-    [SerializeField] ParticlesSetting particleSettings;
+    [Tooltip("Enable checkbox on right side to track particles")]
+    [SerializeField] OptionalParticleSettings trackParticles;
 
     protected override void Rewind(float seconds)
     {
@@ -21,7 +20,7 @@ public class GenericRewind : RewindAbstract
             RestoreVelocity(seconds);
         if (trackAnimator)
             RestoreAnimator(seconds);
-        if (trackParticles)
+        if (trackParticles.Enabled)
             RestoreParticles(seconds);
         if(trackAudio)
             RestoreAudio(seconds);
@@ -35,14 +34,14 @@ public class GenericRewind : RewindAbstract
             TrackVelocity();
         if (trackAnimator)
             TrackAnimator();
-        if (trackParticles)
+        if (trackParticles.Enabled)
             TrackParticles();
         if (trackAudio)
             TrackAudio();
     }
     private void Start()
     {
-        InitializeParticles(particleSettings);
+        InitializeParticles(trackParticles.Value);
     }
 
 }

@@ -3062,11 +3062,12 @@ MonoBehaviour:
   trackVelocity: 0
   trackAnimator: 1
   trackAudio: 0
-  trackParticles: 0
-  particleSettings:
-    particleLimiter: 0
-    particleResetTo: 0
-    particlesData: []
+  trackParticles:
+    enabled: 0
+    value:
+      particleLimiter: 0
+      particleResetTo: 0
+      particlesData: []
 --- !u!4 &4475510621848781043 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2777300740448002485, guid: 4180b94305dcbca47bb67cfb0c911992, type: 3}

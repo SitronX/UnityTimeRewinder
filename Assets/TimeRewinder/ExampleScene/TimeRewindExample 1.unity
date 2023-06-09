@@ -269,15 +269,12 @@ MonoBehaviour:
   trackVelocity: 0
   trackAnimator: 0
   trackAudio: 1
-  trackParticles: 1
-  particleSettings:
-    particleLimiter: 10
-    particleResetTo: 3
-    particlesData:
-    - particleSystem: {fileID: 364920339}
-      particleSystemEnabler: {fileID: 364920336}
-    - particleSystem: {fileID: 274326564}
-      particleSystemEnabler: {fileID: 364920336}
+  trackParticles:
+    enabled: 0
+    value:
+      particleLimiter: 0
+      particleResetTo: 0
+      particlesData: []
 --- !u!23 &13430125
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -668,11 +665,12 @@ MonoBehaviour:
   trackVelocity: 0
   trackAnimator: 1
   trackAudio: 1
-  trackParticles: 0
-  particleSettings:
-    particleLimiter: 0
-    particleResetTo: 0
-    particlesData: []
+  trackParticles:
+    enabled: 0
+    value:
+      particleLimiter: 0
+      particleResetTo: 0
+      particlesData: []
 --- !u!82 &184878771
 AudioSource:
   m_ObjectHideFlags: 0
@@ -977,18 +975,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 4065960114815223673, guid: 0fb06aceffb6a294c8971e56e984b534, type: 3}
-      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
-      value: 
-      objectReference: {fileID: 1442316409}
-    - target: {fileID: 4065960114815223673, guid: 0fb06aceffb6a294c8971e56e984b534, type: 3}
-      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: OnSliderUpdate
-      objectReference: {fileID: 0}
-    - target: {fileID: 4065960114815223673, guid: 0fb06aceffb6a294c8971e56e984b534, type: 3}
-      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: RewindBySlider, Assembly-CSharp
-      objectReference: {fileID: 0}
     - target: {fileID: 4065960115090877166, guid: 0fb06aceffb6a294c8971e56e984b534, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -1047,11 +1033,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0fb06aceffb6a294c8971e56e984b534, type: 3}
---- !u!198 &274326564 stripped
-ParticleSystem:
-  m_CorrespondingSourceObject: {fileID: 198000014052238036, guid: 3123da49cb81147489b444f2749aba47, type: 3}
-  m_PrefabInstance: {fileID: 165187786}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &356099824
 GameObject:
   m_ObjectHideFlags: 0
@@ -1118,16 +1099,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &364920336 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1000011667291308, guid: 3123da49cb81147489b444f2749aba47, type: 3}
-  m_PrefabInstance: {fileID: 165187786}
-  m_PrefabAsset: {fileID: 0}
---- !u!198 &364920339 stripped
-ParticleSystem:
-  m_CorrespondingSourceObject: {fileID: 198000014016860652, guid: 3123da49cb81147489b444f2749aba47, type: 3}
-  m_PrefabInstance: {fileID: 165187786}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &474125695
 GameObject:
   m_ObjectHideFlags: 0
@@ -2167,11 +2138,14 @@ MonoBehaviour:
   trackVelocity: 1
   trackAnimator: 0
   trackAudio: 0
-  trackParticles: 0
-  particleSettings:
-    particleLimiter: 0
-    particleResetTo: 0
-    particlesData: []
+  trackParticles:
+    enabled: 0
+    value:
+      particleLimiter: 0
+      particleResetTo: 0
+      particlesData:
+      - particleSystem: {fileID: 0}
+        particleSystemEnabler: {fileID: 0}
 --- !u!1 &941752917
 GameObject:
   m_ObjectHideFlags: 0
@@ -2952,17 +2926,6 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
---- !u!114 &1442316409 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 1923849193941672073, guid: 0fb06aceffb6a294c8971e56e984b534, type: 3}
-  m_PrefabInstance: {fileID: 231545902}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 08a37ff3489bdf648b78d4d67f513a20, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1447404618
 GameObject:
   m_ObjectHideFlags: 0
