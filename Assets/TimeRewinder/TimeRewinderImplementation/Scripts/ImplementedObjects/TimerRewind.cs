@@ -17,7 +17,7 @@ public class TimerRewind : RewindAbstract
 
 
     //In this method define what will be tracked. In our case we want to track already implemented audio tracking,particle tracking + new custom timer tracking
-    protected override void Track()
+    public override void Track()
     {
         TrackParticles();
         TrackAudio();
@@ -25,7 +25,7 @@ public class TimerRewind : RewindAbstract
     }
 
     //In this method define, what will be restored on time rewinding. In our case we want to restore Particles, Audio and custom implemented Timer
-    protected override void Rewind(float seconds)
+    public override void Rewind(float seconds)
     {
         RestoreParticles(seconds);
         RestoreAudio(seconds);

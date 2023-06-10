@@ -1,41 +1,40 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class RewindManager : MonoBehaviour
 {
+ 
     /// <summary>
-    /// Action is not meant to be used by users. It shares data between classes. You probably want to use prepared methods like: RewindTimeBySeconds(), StartRewindTimeBySeconds(), SetTimeSecondsInRewind(), StopRewindTimeBySeconds()
+    /// Property defining how much into the past should be tracked. 
+    /// You can edit this value to your preference
     /// </summary>
-    public static Action<float> RewindTimeCall { get; set; }
+    [field:SerializeField] public float HowManySecondsToTrack { get; private set; } = 12;
+
     /// <summary>
-    /// Action is not meant to be used by users. It shares data between classes. You probably want to use prepared methods like: RewindTimeBySeconds(), StartRewindTimeBySeconds(), SetTimeSecondsInRewind(), StopRewindTimeBySeconds()
-    /// </summary>
-    public static Action<bool> TrackingStateCall { get; set; }
-    /// <summary>
-    /// Action is not meant to be used by users. It shares data between classes. You probably want to use prepared methods like: RewindTimeBySeconds(), StartRewindTimeBySeconds(), SetTimeSecondsInRewind(), StopRewindTimeBySeconds()
-    /// </summary>
-    public static Action<float> RestoreBuffers { get; set; }
-    
-    
-    /// <summary>
-    /// This property returns how many seconds are available for rewind
+    /// This property returns how many seconds are currently available for rewind
     /// </summary>
     public float HowManySecondsAvailableForRewind { get; private set; }
-
 
     /// <summary>
     /// Tells you if scene is currently being rewinded
     /// </summary>
     public bool IsBeingRewinded { get; private set; } = false;
 
-
-    float rewindSeconds = 0;
+    /// <summary>
+    /// Singleton instance of RewindManager
+    /// </summary>
+    public static RewindManager Instance { get; private set; }
 
     /// <summary>
-    /// Variable defining how much into the past should be tracked, after set limit is hit, old values will be overwritten in circular buffer
+    /// Property defining if Circular buffers should be written to, when the system is not rewinding and should normally be tracking values.
     /// </summary>
-    public static readonly float howManySecondsToTrack = 12;
+    public bool TrackingEnabled { get; set; } = true;
 
+
+    float rewindSeconds = 0;
+    List<RewindAbstract> _rewindedObjects;
 
     /// <summary>
     /// Call this method to rewind time by specified seconds instantly without snapshot preview
@@ -53,10 +52,9 @@ public class RewindManager : MonoBehaviour
             Debug.LogError("Parameter in RewindTimeBySeconds() must have positive value!!!");
             return;
         }
-        TrackingStateCall?.Invoke(false);
-        RewindTimeCall?.Invoke(seconds);
-        RestoreBuffers?.Invoke(seconds);
-        TrackingStateCall?.Invoke(true);
+
+        _rewindedObjects.ForEach(x => x.Rewind(seconds));
+        BuffersRestore?.Invoke(seconds);
     }
     /// <summary>
     /// Call this method if you want to start rewinding time with ability to preview snapshots. After done rewinding, StopRewindTimeBySeconds() must be called!!!. To update snapshot preview between, call method SetTimeSecondsInRewind()
@@ -68,7 +66,6 @@ public class RewindManager : MonoBehaviour
         CheckReachingOutOfBounds(seconds);
 
         rewindSeconds = seconds;
-        TrackingStateCall?.Invoke(false);
         IsBeingRewinded = true;
     }
 
@@ -87,13 +84,12 @@ public class RewindManager : MonoBehaviour
     public void StopRewindTimeBySeconds()
     {
         HowManySecondsAvailableForRewind -= rewindSeconds;
+        BuffersRestore?.Invoke(rewindSeconds);
         IsBeingRewinded = false;
-        RestoreBuffers?.Invoke(rewindSeconds);
-        TrackingStateCall?.Invoke(true);
     }
     private void CheckReachingOutOfBounds(float seconds)
     {
-        if (seconds > HowManySecondsAvailableForRewind)
+        if (Mathf.Round(seconds*100) > Mathf.Round(HowManySecondsAvailableForRewind*100))
         {
             Debug.LogError("Not enough stored tracked value!!! Reaching on wrong index. Called rewind should be less than HowManySecondsAvailableForRewind property");
             return;
@@ -104,32 +100,47 @@ public class RewindManager : MonoBehaviour
             return;
         }
     }
+    public void RestartTracking()
+    {
+        if(IsBeingRewinded)
+            StopRewindTimeBySeconds();
+
+        HowManySecondsAvailableForRewind = 0;
+        TrackingEnabled = true;
+    }
    
     private void Awake()
     {
-        RewindManager[] managers = FindObjectsOfType<RewindManager>();
+        _rewindedObjects = FindObjectsOfType<RewindAbstract>().ToList();
 
-        if (managers.Length > 1)                                               //Check if each scene contains only one script with RewindManager
+        if (Instance != null && Instance != this)
         {
-            Debug.LogError("RewindManager cannot be more than once in each scene. Remove the other RewindManager!!!");
+            Destroy(Instance);
         }
+
+        Instance = this;
     }
     private void OnEnable()
     {
         HowManySecondsAvailableForRewind = 0;
     }
-    private void FixedUpdate()
-    {
+    private  void FixedUpdate()
+    {   
         if (IsBeingRewinded)
         {
-            RewindTimeCall?.Invoke(rewindSeconds);
+            _rewindedObjects.ForEach(x => x.Rewind(rewindSeconds));
         }
-        else if (HowManySecondsAvailableForRewind != howManySecondsToTrack)
+        else 
         {
-            HowManySecondsAvailableForRewind += Time.fixedDeltaTime;
+            _rewindedObjects.ForEach(x => x.Track());
 
-            if (HowManySecondsAvailableForRewind > howManySecondsToTrack)
-                HowManySecondsAvailableForRewind = howManySecondsToTrack;
+            if(TrackingEnabled)
+                HowManySecondsAvailableForRewind = Mathf.Min(HowManySecondsAvailableForRewind + Time.fixedDeltaTime, HowManySecondsToTrack);
         }
     }
+
+    /// <summary>
+    /// This action is not meant to be used by users. CircularBuffers listens to it
+    /// </summary>
+    public static Action<float> BuffersRestore { get; set; }
 }

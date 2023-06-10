@@ -15,9 +15,9 @@ public class CircularBuffer <T>
         try
         {
             howManyRecordsPerSecond = Time.timeScale / Time.fixedDeltaTime;
-            bufferCapacity = (int)(RewindManager.howManySecondsToTrack *howManyRecordsPerSecond);
+            bufferCapacity = (int)(RewindManager.Instance.HowManySecondsToTrack *howManyRecordsPerSecond);
             dataArray = new T[bufferCapacity];
-            RewindManager.RestoreBuffers += OnBuffersRestore;
+            RewindManager.BuffersRestore += MoveLastBufferPosition;
         }
         catch
         {
@@ -26,20 +26,23 @@ public class CircularBuffer <T>
     }
     
     /// <summary>
-    /// Write value to the last position of the buffer
+    /// Write value to the last position of the buffer if Tracking is enabled
     /// </summary>
     /// <param name="val"></param>
     public void WriteLastValue(T val)
     {
-        bufferCurrentPosition++;
-        if (bufferCurrentPosition >= bufferCapacity)
+        if (RewindManager.Instance.TrackingEnabled)
         {
-            bufferCurrentPosition = 0;
-            dataArray[bufferCurrentPosition] = val;
-        }
-        else
-        {
-            dataArray[bufferCurrentPosition] = val;
+            bufferCurrentPosition++;
+            if (bufferCurrentPosition >= bufferCapacity)
+            {
+                bufferCurrentPosition = 0;
+                dataArray[bufferCurrentPosition] = val;
+            }
+            else
+            {
+                dataArray[bufferCurrentPosition] = val;
+            }
         }
     }
     /// <summary>
@@ -82,9 +85,4 @@ public class CircularBuffer <T>
             bufferCurrentPosition -= howManyBeforeLast;
         }     
     }
-    private void OnBuffersRestore(float seconds)
-    {
-        MoveLastBufferPosition(seconds);
-    }
-
 }

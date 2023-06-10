@@ -20,14 +20,14 @@ public class ScaleRewind : RewindAbstract
     }
 
     //In this method define what will be tracked. In our case we want only track our custom added variable scale tracking
-    protected override void Track()
+    public override void Track()
     {
         TrackObjectScale();      
     }
 
 
     //In this method define, what will be restored on time rewinding. In our case we want to restore object scale
-    protected override void Rewind(float seconds)
+    public override void Rewind(float seconds)
     {
         RestoreObjectScale(seconds);
     }

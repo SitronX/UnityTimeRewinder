@@ -5,9 +5,6 @@ using UnityEngine;
 
 public abstract class RewindAbstract : MonoBehaviour
 {
-    RewindManager rewindManager;
-    public bool IsTracking { get; set; } = false;
-
     Rigidbody body;
     Rigidbody2D body2;
     Animator animator;
@@ -16,16 +13,12 @@ public abstract class RewindAbstract : MonoBehaviour
 
     protected void Awake()
     {
-
-        rewindManager = FindObjectOfType<RewindManager>();
-        if (rewindManager != null)
+        if (RewindManager.Instance != null)
         {
             body = GetComponent<Rigidbody>();
             body2 = GetComponent<Rigidbody2D>();
             animator = GetComponent<Animator>();
             audioSource = GetComponent<AudioSource>();
-
-            IsTracking = true;
         }
         else
         {
@@ -39,12 +32,6 @@ public abstract class RewindAbstract : MonoBehaviour
             for (int i = 0; i < animator.layerCount; i++)
                 trackedAnimationTimes.Add(new CircularBuffer<AnimationValues>());
         trackedAudioTimes = new CircularBuffer<AudioTrackedData>();
-    }
-
-    protected void FixedUpdate()
-    {
-        if (IsTracking)
-            Track();
     }
 
     #region Transform
@@ -84,6 +71,7 @@ public abstract class RewindAbstract : MonoBehaviour
     {
         public Vector3 velocity;
         public Vector3 angularVelocity;
+        public float angularVelocity2D;
     }
     CircularBuffer<VelocityValues> trackedVelocities;
     /// <summary>
@@ -96,13 +84,15 @@ public abstract class RewindAbstract : MonoBehaviour
             VelocityValues valuesToWrite;
             valuesToWrite.velocity= body.velocity;
             valuesToWrite.angularVelocity = body.angularVelocity;
+            valuesToWrite.angularVelocity2D = 0;
             trackedVelocities.WriteLastValue(valuesToWrite);            
         }
         else if (body2!=null)
         {
             VelocityValues valuesToWrite;
             valuesToWrite.velocity = body2.velocity;
-            valuesToWrite.angularVelocity = new Vector3(body2.angularVelocity,0,0);
+            valuesToWrite.angularVelocity = Vector3.zero;
+            valuesToWrite.angularVelocity2D = body2.angularVelocity;
             trackedVelocities.WriteLastValue(valuesToWrite);
         }
         else
@@ -125,7 +115,7 @@ public abstract class RewindAbstract : MonoBehaviour
         {
             VelocityValues valuesToRead = trackedVelocities.ReadFromBuffer(seconds);
             body2.velocity = valuesToRead.velocity;
-            body2.angularVelocity = valuesToRead.angularVelocity.x;
+            body2.angularVelocity = valuesToRead.angularVelocity2D;
         }
     }
     #endregion
@@ -149,7 +139,6 @@ public abstract class RewindAbstract : MonoBehaviour
         }
 
         animator.speed = 1;
-
         for (int i = 0; i < animator.layerCount; i++)
         {
             AnimatorStateInfo animatorInfo = animator.GetCurrentAnimatorStateInfo(i);
@@ -166,8 +155,7 @@ public abstract class RewindAbstract : MonoBehaviour
     protected void RestoreAnimator(float seconds)
     {
         animator.speed = 0;
-        
-        for(int i=0;i<animator.layerCount;i++)
+        for (int i=0;i<animator.layerCount;i++)
         {
             AnimationValues readValues = trackedAnimationTimes[i].ReadFromBuffer(seconds);
             animator.Play(readValues.animationHash,i, readValues.animationStateTime);
@@ -248,8 +236,8 @@ public abstract class RewindAbstract : MonoBehaviour
     {
         
         public ParticleSystem particleSystem;
-        [Tooltip("Particle system enabler, for tracking particle system game object active state")]
-        public GameObject particleSystemEnabler;
+        [Tooltip("Particle system main object, for tracking the whole particle active state")]
+        public GameObject particleSystemMainObject;
     }
     /// <summary>
     /// Particle settings to setup particles in custom variable tracking
@@ -257,10 +245,10 @@ public abstract class RewindAbstract : MonoBehaviour
     [Serializable]
     public struct ParticlesSetting
     {
-        [Tooltip("For long lasting particle systems, set time tracking limiter to drastically improve performance ")]
-        public float particleLimiter;
-        [Tooltip("Variable defining to which second should tracking return to after particle tracking limit was hit. Play with this variable to get better results, so the tracking resets are not much noticeable.")]
-        public float particleResetTo;
+        [Tooltip("For long lasting particle systems, set time tracking limit to drastically improve performance ")]
+        public float particleTrackingLimit;
+        [Tooltip("Variable defining from which second should the particle system be restarted after tracking limit was hit. Play with this variable to get better results, so the tracking resets are not much noticeable.")]
+        public float particleRestartFrom;
         public List<ParticleData> particlesData;
     }
 
@@ -272,13 +260,13 @@ public abstract class RewindAbstract : MonoBehaviour
     /// <param name="resetParticleTo">Variable defining to which second should tracking return to after particle tracking limit was hit. Play with this variable to get better results, so the tracking resets are not much noticeable.</param>
     protected void InitializeParticles(ParticlesSetting particleSettings)
     {
-        if(particleSettings.particlesData.Any(x=>x.particleSystemEnabler==null||x.particleSystem==null))
+        if(particleSettings.particlesData.Any(x=>x.particleSystemMainObject == null||x.particleSystem==null))
         {
             Debug.LogError("Initialized particle system are missing data. Either Particle System or Particle System Enabler is not filled for some values");
         }
         particleSystemsData = particleSettings.particlesData;
-        particleTimeLimiter = particleSettings.particleLimiter;
-        particleResetTimeTo = particleSettings.particleResetTo;
+        particleTimeLimiter = particleSettings.particleTrackingLimit;
+        particleResetTimeTo = particleSettings.particleRestartFrom;
         particleSystemsData.ForEach(x => trackedParticleTimes.Add(new CircularBuffer<ParticleTrackedData>()));
         foreach (CircularBuffer<ParticleTrackedData> i in trackedParticleTimes)
         {
@@ -312,7 +300,7 @@ public abstract class RewindAbstract : MonoBehaviour
                 float addTime = lastValue.particleTime + Time.fixedDeltaTime;
 
                 ParticleTrackedData particleData;
-                particleData.isActive = particleSystemsData[i].particleSystemEnabler.activeInHierarchy;
+                particleData.isActive = particleSystemsData[i].particleSystemMainObject.activeInHierarchy;
 
                 if ((!lastValue.isActive) && (particleData.isActive))
                     particleData.particleTime = 0;
@@ -326,7 +314,7 @@ public abstract class RewindAbstract : MonoBehaviour
         }
         catch
         {
-            Debug.LogError("Particles Data not filled properly!!! Fill both the Particle System and Particle System Enabler fields for each element");
+            Debug.LogError("Particles Data not filled properly!!! Fill both the Particle System and Particle Main object fields for each element");
         }
 
     }
@@ -337,7 +325,7 @@ public abstract class RewindAbstract : MonoBehaviour
     {
         for (int i = 0; i < particleSystemsData.Count; i++)
         {
-            GameObject particleEnabler = particleSystemsData[i].particleSystemEnabler;
+            GameObject particleEnabler = particleSystemsData[i].particleSystemMainObject;
 
 
             ParticleTrackedData particleTracked = trackedParticleTimes[i].ReadFromBuffer(seconds);
@@ -359,32 +347,17 @@ public abstract class RewindAbstract : MonoBehaviour
     }
     #endregion
 
-   
-    private void OnTrackingChange(bool val)
-    {
-        IsTracking = val;
-    }
-    protected void OnEnable()
-    {
-        RewindManager.RewindTimeCall += Rewind;
-        RewindManager.TrackingStateCall += OnTrackingChange;        
-    }
-    protected void OnDisable()
-    {
-        RewindManager.RewindTimeCall -= Rewind;
-        RewindManager.TrackingStateCall -= OnTrackingChange;            
-    }
 
     /// <summary>
     /// Main method where all tracking is filled, lets choose here what will be tracked for specific object
     /// </summary>
-    protected abstract void Track();
+    public abstract void Track();
 
 
     /// <summary>
     /// Main method where all rewinding is filled, lets choose here what will be rewinded for specific object
     /// </summary>
     /// <param name="seconds">Parameter defining how many seconds we want to rewind back</param>
-    protected abstract void Rewind(float seconds);
+    public abstract void Rewind(float seconds);
 
 }      

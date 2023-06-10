@@ -7,7 +7,6 @@ public class RewindByKeyPress : MonoBehaviour
 {
     bool isRewinding = false;
     [SerializeField] float rewindIntensity = 0.02f;          //Variable to change rewind speed
-    [SerializeField] RewindManager rewindManager;
     [SerializeField] AudioSource rewindSound;
     float rewindValue = 0;
 
@@ -19,13 +18,13 @@ public class RewindByKeyPress : MonoBehaviour
 
             if (!isRewinding)
             {
-                rewindManager.StartRewindTimeBySeconds(rewindValue);
+                RewindManager.Instance.StartRewindTimeBySeconds(rewindValue);
                 rewindSound.Play();
             }
             else
             {
-                if(rewindManager.HowManySecondsAvailableForRewind>rewindValue)      //Safety check so it is not grabbing values out of the bounds
-                    rewindManager.SetTimeSecondsInRewind(rewindValue);
+                if(RewindManager.Instance.HowManySecondsAvailableForRewind>rewindValue)      //Safety check so it is not grabbing values out of the bounds
+                    RewindManager.Instance.SetTimeSecondsInRewind(rewindValue);
             }
             isRewinding = true;
         }
@@ -33,7 +32,7 @@ public class RewindByKeyPress : MonoBehaviour
         {
             if(isRewinding)
             {
-                rewindManager.StopRewindTimeBySeconds();
+                RewindManager.Instance.StopRewindTimeBySeconds();
                 rewindSound.Stop();
                 rewindValue = 0;
                 isRewinding = false;

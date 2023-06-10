@@ -270,11 +270,15 @@ MonoBehaviour:
   trackAnimator: 0
   trackAudio: 1
   trackParticles:
-    enabled: 0
+    enabled: 1
     value:
-      particleLimiter: 0
-      particleResetTo: 0
-      particlesData: []
+      particleTrackingLimit: 10
+      particleRestartFrom: 5
+      particlesData:
+      - particleSystem: {fileID: 403565797}
+        particleSystemMainObject: {fileID: 399947957}
+      - particleSystem: {fileID: 1116574891}
+        particleSystemMainObject: {fileID: 399947957}
 --- !u!23 &13430125
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -668,8 +672,8 @@ MonoBehaviour:
   trackParticles:
     enabled: 0
     value:
-      particleLimiter: 0
-      particleResetTo: 0
+      particleTrackingLimit: 0
+      particleRestartFrom: 0
       particlesData: []
 --- !u!82 &184878771
 AudioSource:
@@ -975,8 +979,20 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 4065960114628133192, guid: 0fb06aceffb6a294c8971e56e984b534, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -4.9999695
+      objectReference: {fileID: 0}
+    - target: {fileID: 4065960115090877166, guid: 0fb06aceffb6a294c8971e56e984b534, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4065960115090877166, guid: 0fb06aceffb6a294c8971e56e984b534, type: 3}
       propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4065960115090877166, guid: 0fb06aceffb6a294c8971e56e984b534, type: 3}
+      propertyPath: m_AnchorMin.x
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4065960115365519547, guid: 0fb06aceffb6a294c8971e56e984b534, type: 3}
@@ -1026,6 +1042,14 @@ PrefabInstance:
     - target: {fileID: 4065960115365519549, guid: 0fb06aceffb6a294c8971e56e984b534, type: 3}
       propertyPath: m_Name
       value: ClockSlider
+      objectReference: {fileID: 0}
+    - target: {fileID: 4065960115365519549, guid: 0fb06aceffb6a294c8971e56e984b534, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4065960116200895156, guid: 0fb06aceffb6a294c8971e56e984b534, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4065960116200895156, guid: 0fb06aceffb6a294c8971e56e984b534, type: 3}
       propertyPath: m_AnchorMax.y
@@ -1099,6 +1123,16 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &399947957 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1000012118400646, guid: 3123da49cb81147489b444f2749aba47, type: 3}
+  m_PrefabInstance: {fileID: 165187786}
+  m_PrefabAsset: {fileID: 0}
+--- !u!198 &403565797 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 198000014016860652, guid: 3123da49cb81147489b444f2749aba47, type: 3}
+  m_PrefabInstance: {fileID: 165187786}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &474125695
 GameObject:
   m_ObjectHideFlags: 0
@@ -1831,11 +1865,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   particleTimer: {fileID: 873755460}
   particleSettings:
-    particleLimiter: 10
-    particleResetTo: 1
+    particleTrackingLimit: 10
+    particleRestartFrom: 5
     particlesData:
     - particleSystem: {fileID: 198350596}
-      particleSystemEnabler: {fileID: 198350593}
+      particleSystemMainObject: {fileID: 198350593}
 --- !u!82 &873755459
 AudioSource:
   m_ObjectHideFlags: 0
@@ -2141,11 +2175,11 @@ MonoBehaviour:
   trackParticles:
     enabled: 0
     value:
-      particleLimiter: 0
-      particleResetTo: 0
+      particleTrackingLimit: 0
+      particleRestartFrom: 0
       particlesData:
       - particleSystem: {fileID: 0}
-        particleSystemEnabler: {fileID: 0}
+        particleSystemMainObject: {fileID: 0}
 --- !u!1 &941752917
 GameObject:
   m_ObjectHideFlags: 0
@@ -2558,6 +2592,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1047236821}
   m_CullTransparentMesh: 1
+--- !u!198 &1116574891 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 198000014052238036, guid: 3123da49cb81147489b444f2749aba47, type: 3}
+  m_PrefabInstance: {fileID: 165187786}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1187936697
 GameObject:
   m_ObjectHideFlags: 0
