@@ -9,22 +9,16 @@ public abstract class RewindAbstract : MonoBehaviour
     Rigidbody2D body2;
     Animator animator;
     AudioSource audioSource;
+    
 
-
-    protected void Awake()
+    public void MainInit()
     {
-        if (RewindManager.Instance != null)
-        {
-            body = GetComponent<Rigidbody>();
-            body2 = GetComponent<Rigidbody2D>();
-            animator = GetComponent<Animator>();
-            audioSource = GetComponent<AudioSource>();
-        }
-        else
-        {
-            Debug.LogError("TimeManager script cannot be found in scene. Time tracking cannot be started. Did you forget to put it into the scene?");
-        }
+        body = GetComponent<Rigidbody>();
+        body2 = GetComponent<Rigidbody2D>();
+        animator = GetComponent<Animator>();
+        audioSource = GetComponent<AudioSource>();
 
+        trackedActiveStates = new CircularBuffer<bool>();
         trackedTransformValues = new CircularBuffer<TransformValues>();
         trackedVelocities = new CircularBuffer<VelocityValues>();
         trackedAnimationTimes = new List<CircularBuffer<AnimationValues>>();
@@ -33,6 +27,26 @@ public abstract class RewindAbstract : MonoBehaviour
                 trackedAnimationTimes.Add(new CircularBuffer<AnimationValues>());
         trackedAudioTimes = new CircularBuffer<AudioTrackedData>();
     }
+    #region ActiveState
+    CircularBuffer<bool> trackedActiveStates;
+
+    /// <summary>
+    /// Call this method in Track() if you want to track object active state
+    /// </summary>
+    protected void TrackObjectActiveState()
+    {
+        trackedActiveStates.WriteLastValue(gameObject.activeSelf);
+    }
+    /// <summary>
+    /// Call this method in Rewind() to restore object active state
+    /// </summary>
+    /// <param name="seconds">Use seconds parameter from Rewind() method</param>
+    protected void RestoreObjectActiveState(float seconds)
+    {
+        gameObject.SetActive(trackedActiveStates.ReadFromBuffer(seconds));
+    }
+
+    #endregion
 
     #region Transform
 
@@ -226,25 +240,15 @@ public abstract class RewindAbstract : MonoBehaviour
     private float particleTimeLimiter;
     private float particleResetTimeTo;
     List<CircularBuffer<ParticleTrackedData>> trackedParticleTimes = new List<CircularBuffer<ParticleTrackedData>>();
+
     public struct ParticleTrackedData
     {
         public bool isActive;
         public float particleTime;
     }
 
-    private List<ParticleData> particleSystemsData;
+    private List<ParticleSystem> particleSystemsData;
 
-    /// <summary>
-    /// particle system and its main object for tracking if particle system game object is enabled or disabled
-    /// </summary>
-    [Serializable]
-    public struct ParticleData
-    {
-        
-        public ParticleSystem particleSystem;
-        [Tooltip("Particle system main object, for tracking the whole particle active state")]
-        public GameObject particleSystemMainObject;
-    }
     /// <summary>
     /// Particle settings to setup particles in custom variable tracking
     /// </summary>
@@ -255,7 +259,7 @@ public abstract class RewindAbstract : MonoBehaviour
         public float particleTrackingLimit;
         [Tooltip("Variable defining from which second should the particle system be restarted after tracking limit was hit. Play with this variable to get better results, so the tracking resets are not much noticeable.")]
         public float particleRestartFrom;
-        public List<ParticleData> particlesData;
+        public List<ParticleSystem> particleSystems;
     }
 
     /// <summary>
@@ -264,14 +268,15 @@ public abstract class RewindAbstract : MonoBehaviour
     /// <param name="particleSettings"></param>
     protected void InitializeParticles(ParticlesSetting particleSettings)
     {
-        if(particleSettings.particlesData.Any(x=>x.particleSystemMainObject == null||x.particleSystem==null))
+        if(particleSettings.particleSystems.Any(x=>x==null))
         {
-            Debug.LogError("Initialized particle system are missing data. Either Particle System or Main Object is not filled for some values");
+            Debug.LogError("Initialized particle system are missing data. Some particle systems are not filled.");
         }
-        particleSystemsData = particleSettings.particlesData;
+        particleSystemsData = particleSettings.particleSystems;
         particleTimeLimiter = particleSettings.particleTrackingLimit;
         particleResetTimeTo = particleSettings.particleRestartFrom;
         particleSystemsData.ForEach(x => trackedParticleTimes.Add(new CircularBuffer<ParticleTrackedData>()));
+
         foreach (CircularBuffer<ParticleTrackedData> i in trackedParticleTimes)
         {
             ParticleTrackedData trackedData;
@@ -297,14 +302,14 @@ public abstract class RewindAbstract : MonoBehaviour
         {
             for (int i = 0; i < particleSystemsData.Count; i++)
             {
-                if (particleSystemsData[i].particleSystem.isPaused)
-                    particleSystemsData[i].particleSystem.Play();
+                if (particleSystemsData[i].isPaused)
+                    particleSystemsData[i].Play();
 
                 ParticleTrackedData lastValue = trackedParticleTimes[i].ReadLastValue();
                 float addTime = lastValue.particleTime + Time.fixedDeltaTime;
 
                 ParticleTrackedData particleData;
-                particleData.isActive = particleSystemsData[i].particleSystemMainObject.activeInHierarchy;
+                particleData.isActive = particleSystemsData[i].gameObject.activeInHierarchy;
 
                 if ((!lastValue.isActive) && (particleData.isActive))
                     particleData.particleTime = 0;
@@ -330,24 +335,8 @@ public abstract class RewindAbstract : MonoBehaviour
     {
         for (int i = 0; i < particleSystemsData.Count; i++)
         {
-            GameObject particleEnabler = particleSystemsData[i].particleSystemMainObject;
-
-
-            ParticleTrackedData particleTracked = trackedParticleTimes[i].ReadFromBuffer(seconds);
-
-            if (particleTracked.isActive)
-            {
-
-                if (!particleEnabler.activeSelf)
-                    particleEnabler.SetActive(true);
-
-                particleSystemsData[i].particleSystem.Simulate(particleTracked.particleTime, false, true, false);
-            }
-            else
-            {
-                if (particleEnabler.activeSelf)
-                    particleEnabler.SetActive(false);
-            }
+            ParticleTrackedData particleTracked = trackedParticleTimes[i].ReadFromBuffer(seconds);        
+            particleSystemsData[i].Simulate(particleTracked.particleTime, false, true, false);          
         }
     }
     #endregion

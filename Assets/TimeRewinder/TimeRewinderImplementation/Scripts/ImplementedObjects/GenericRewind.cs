@@ -2,6 +2,8 @@
 
 public class GenericRewind : RewindAbstract
 {
+    [Tooltip("Tracking active state of the object that this script is attached to")]
+    [SerializeField] bool trackObjectActiveState;
     [Tooltip("Tracking Position,Rotation and Scale")]
     [SerializeField] bool trackTransform;
     [SerializeField] bool trackVelocity;
@@ -13,6 +15,8 @@ public class GenericRewind : RewindAbstract
 
     public override void Rewind(float seconds)
     {
+        if (trackObjectActiveState)
+            RestoreObjectActiveState(seconds);
         if (trackTransform)
             RestoreTransform(seconds);
         if (trackVelocity)
@@ -27,6 +31,8 @@ public class GenericRewind : RewindAbstract
 
     public override void Track()
     {
+        if (trackObjectActiveState)
+            TrackObjectActiveState();
         if (trackTransform)
             TrackTransform();
         if (trackVelocity)

@@ -127,6 +127,8 @@ public class RewindManager : MonoBehaviour
         }
 
         Instance = this;
+
+        _rewindedObjects.ForEach(x => x.MainInit());
     }
     private void OnEnable()
     {
