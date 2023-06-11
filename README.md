@@ -9,7 +9,7 @@ Rewind time in Unity with ease! While there are certain frameworks that let you 
 
 **Customizability is one of the main points of this project, so it can be used in any of your custom Unity projects and you can track and rewind anything you want!**
 
-Straight from the box you can start rewinding **Transforms (position, rotation, scale), velocities, animators (also all animator layers), audios and particle systems**.
+Straight from the box you can start rewinding **Object active states, Transforms (position, rotation, scale), velocities, animators (also all animator layers), audios and particle systems**.
 
 ## How to install
 
@@ -25,7 +25,7 @@ TimeRewinder supports two types of rewinds.
 - Instant rewinds where you rewind time by specified amount of seconds
 - Rewinds with previews
 
-The latter of the two is definitely more interesting option, cause you can freely choose which snapshot you can return to after you spectate these previews for yourself. This is especially helpfull if you want to give more control to player with rewinding time. As shown in demo-scene examples, player can choose on the time axis the exact moment he wants to return to, while the time is stopped (technically time is not stopped, but for the objects that are rewinded, it appears like it). The showcase of this mechanic is shown right below. I think, this is also unique feature of this project, because i havent found a similar functionality in other Time Rewind frameworks.
+The latter of the two is definitely more interesting option, cause you can freely choose which snapshot you can return to after you spectate these previews for yourself. This is especially helpfull if you want to give more control to player with rewinding time. As shown in demo-scene examples, player can choose on the time axis the exact moment he wants to return to, while the tracked attributes are paused. The showcase of this mechanic is shown right below. I think, this is also unique feature of this project, because i havent found a similar functionality in other Time Rewind frameworks.
 
 ![ezgif com-gif-maker (9)](https://user-images.githubusercontent.com/68167377/196203578-a476d5b1-5314-49bd-933d-904eba1dd51a.gif)
 
@@ -38,12 +38,12 @@ The classic functionality to rewind time by holding button, which you probably a
 
 Detailed steps how to use TimeRewinder are described in [documentation](https://github.com/SitronX/UnityTimeRewinder/blob/main/Assets/TimeRewinder/Documentation/Unity%20Time%20Rewinder.pdf) and all important parts of code are also documented.
 
-If you still face any problem, dont hesitate to contact me, I will gladly help you out.
+If you still face any problem, feel free to contact me, i can help you out.
 
 ## Showcase of rewinding
 
 
-In demo-scenes there are few examples of time rewinding, as well as two examples of tracking and rewinding custom variables. I recommend you look into it , so you get the idea how everything is connected. Here comes few other videos showcasing rewinding time from demo scenes
+In demo-scenes there are few examples of time rewinding, as well as two examples of tracking and rewinding custom variables. I recommend you look into it, so you get the idea how everything is connected. Here comes few other videos showcasing rewinding time from demo scenes
 
 
 
