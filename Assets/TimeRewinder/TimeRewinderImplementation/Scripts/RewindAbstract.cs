@@ -45,7 +45,7 @@ public abstract class RewindAbstract : MonoBehaviour
     }
     
     /// <summary>
-    /// Call this method in Track() if you want to track object Position and Rotation
+    /// Call this method in Track() if you want to track object Transforms (position, rotation and scale)
     /// </summary>
     protected void TrackTransform()
     {
@@ -56,8 +56,9 @@ public abstract class RewindAbstract : MonoBehaviour
         trackedTransformValues.WriteLastValue(valuesToWrite);
     }
     /// <summary>
-    /// Call this method in GetSnapshotFromSavedValues() to restore Position and Rotation
+    /// Call this method in Rewind() to restore Transform
     /// </summary>
+    /// <param name="seconds">Use seconds parameter from Rewind() method</param>
     protected void RestoreTransform(float seconds)
     {
         TransformValues valuesToRead = trackedTransformValues.ReadFromBuffer(seconds);
@@ -74,6 +75,7 @@ public abstract class RewindAbstract : MonoBehaviour
         public float angularVelocity2D;
     }
     CircularBuffer<VelocityValues> trackedVelocities;
+
     /// <summary>
     /// Call this method in Track() if you want to track velocity of Rigidbody
     /// </summary>
@@ -100,9 +102,11 @@ public abstract class RewindAbstract : MonoBehaviour
             Debug.LogError("Cannot find Rigidbody on the object, while TrackVelocity() is being called!!!");
         }
     }
+
     /// <summary>
-    /// Call this method in GetSnapshotFromSavedValues() to velocity of Rigidbody
+    /// Call this method in Rewind() to restore velocity of Rigidbody
     /// </summary>
+    /// <param name="seconds">Use seconds parameter from Rewind() method</param>
     protected void RestoreVelocity(float seconds)
     {   
         if(body!=null)
@@ -149,9 +153,11 @@ public abstract class RewindAbstract : MonoBehaviour
             trackedAnimationTimes[i].WriteLastValue(valuesToWrite);
         }         
     }
+
     /// <summary>
-    /// Call this method in GetSnapshotFromSavedValues() to restore Animator state
+    /// Call this method in Rewind() to restore Animator state
     /// </summary>
+    /// <param name="seconds">Use seconds parameter from Rewind() method</param>
     protected void RestoreAnimator(float seconds)
     {
         animator.speed = 0;
@@ -190,9 +196,11 @@ public abstract class RewindAbstract : MonoBehaviour
 
         trackedAudioTimes.WriteLastValue(dataToWrite);      
     }
+
     /// <summary>
-    /// Call this method in GetSnapshotFromSavedValues() to restore Audio
+    /// Call this method in Rewind() to restore Audio
     /// </summary>
+    /// <param name="seconds">Use seconds parameter from Rewind() method</param>
     protected void RestoreAudio(float seconds)
     {
         AudioTrackedData readValues = trackedAudioTimes.ReadFromBuffer(seconds);
@@ -224,12 +232,10 @@ public abstract class RewindAbstract : MonoBehaviour
         public float particleTime;
     }
 
-
     private List<ParticleData> particleSystemsData;
 
     /// <summary>
-    /// particle system and its enabler, which is for tracking if particle system game object is enabled or disabled
-    /// particle
+    /// particle system and its main object for tracking if particle system game object is enabled or disabled
     /// </summary>
     [Serializable]
     public struct ParticleData
@@ -255,14 +261,12 @@ public abstract class RewindAbstract : MonoBehaviour
     /// <summary>
     /// Use this method first when using particle rewinding implementation
     /// </summary>
-    /// <param name="particleDataList">Data defining which particles will be tracked</param>
-    /// <param name="particleTimeLimiter">For long lasting particle systems, set time tracking limiter to drastically improve performance </param>
-    /// <param name="resetParticleTo">Variable defining to which second should tracking return to after particle tracking limit was hit. Play with this variable to get better results, so the tracking resets are not much noticeable.</param>
+    /// <param name="particleSettings"></param>
     protected void InitializeParticles(ParticlesSetting particleSettings)
     {
         if(particleSettings.particlesData.Any(x=>x.particleSystemMainObject == null||x.particleSystem==null))
         {
-            Debug.LogError("Initialized particle system are missing data. Either Particle System or Particle System Enabler is not filled for some values");
+            Debug.LogError("Initialized particle system are missing data. Either Particle System or Main Object is not filled for some values");
         }
         particleSystemsData = particleSettings.particlesData;
         particleTimeLimiter = particleSettings.particleTrackingLimit;
@@ -314,13 +318,14 @@ public abstract class RewindAbstract : MonoBehaviour
         }
         catch
         {
-            Debug.LogError("Particles Data not filled properly!!! Fill both the Particle System and Particle Main object fields for each element");
+            Debug.LogError("Particles Data not filled properly!!! Fill both the Particle System and Particle Main Object fields for each element");
         }
 
     }
     /// <summary>
-    /// Call this method in GetSnapshotFromSavedValues() to Particles
+    /// Call this method in Rewind() to restore Particles
     /// </summary>
+    /// <param name="seconds">Use seconds parameter from Rewind() method</param>
     protected void RestoreParticles(float seconds)
     {
         for (int i = 0; i < particleSystemsData.Count; i++)
@@ -349,15 +354,15 @@ public abstract class RewindAbstract : MonoBehaviour
 
 
     /// <summary>
-    /// Main method where all tracking is filled, lets choose here what will be tracked for specific object
+    /// Main method where all tracking is filled, choose what will be tracked for specific object
     /// </summary>
     public abstract void Track();
 
 
     /// <summary>
-    /// Main method where all rewinding is filled, lets choose here what will be rewinded for specific object
+    /// Main method where all rewinding is filled, choose what will be rewinded for specific object
     /// </summary>
-    /// <param name="seconds">Parameter defining how many seconds we want to rewind back</param>
+    /// <param name="seconds">Parameter defining how many seconds you want to rewind back</param>
     public abstract void Rewind(float seconds);
 
 }      

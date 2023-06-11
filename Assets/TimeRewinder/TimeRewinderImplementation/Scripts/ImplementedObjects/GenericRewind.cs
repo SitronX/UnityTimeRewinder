@@ -13,17 +13,16 @@ public class GenericRewind : RewindAbstract
 
     public override void Rewind(float seconds)
     {
-
         if (trackTransform)
             RestoreTransform(seconds);
         if (trackVelocity)
             RestoreVelocity(seconds);
         if (trackAnimator)
             RestoreAnimator(seconds);
-        if (trackParticles.Enabled)
-            RestoreParticles(seconds);
-        if(trackAudio)
+        if (trackAudio)
             RestoreAudio(seconds);
+        if (trackParticles.Enabled)
+            RestoreParticles(seconds);       
     }
 
     public override void Track()
@@ -34,16 +33,15 @@ public class GenericRewind : RewindAbstract
             TrackVelocity();
         if (trackAnimator)
             TrackAnimator();
-        if (trackParticles.Enabled)
-            TrackParticles();
         if (trackAudio)
             TrackAudio();
+        if (trackParticles.Enabled)
+            TrackParticles();      
     }
     private void Start()
     {
         if(trackParticles.Enabled)
             InitializeParticles(trackParticles.Value);
     }
-
 }
 

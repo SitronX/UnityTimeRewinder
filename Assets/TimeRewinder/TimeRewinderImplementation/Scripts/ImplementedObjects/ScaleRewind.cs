@@ -25,20 +25,17 @@ public class ScaleRewind : RewindAbstract
         TrackObjectScale();      
     }
 
-
     //In this method define, what will be restored on time rewinding. In our case we want to restore object scale
     public override void Rewind(float seconds)
     {
         RestoreObjectScale(seconds);
     }
 
-
     // This is an example of custom variable tracking
     public void TrackObjectScale()
     {
         trackedObjectScales.WriteLastValue(transform.localScale);
     }
-
     
     // This is an example of custom variable restoring
     public void RestoreObjectScale(float seconds)

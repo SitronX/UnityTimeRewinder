@@ -3065,8 +3065,8 @@ MonoBehaviour:
   trackParticles:
     enabled: 0
     value:
-      particleLimiter: 0
-      particleResetTo: 0
+      particleTrackingLimit: 0
+      particleRestartFrom: 0
       particlesData: []
 --- !u!4 &4475510621848781043 stripped
 Transform:

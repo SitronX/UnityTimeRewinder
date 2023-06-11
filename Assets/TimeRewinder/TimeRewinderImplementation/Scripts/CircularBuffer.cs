@@ -53,6 +53,7 @@ public class CircularBuffer <T>
     {
         return dataArray[bufferCurrentPosition];
     }
+
     /// <summary>
     /// Read specified value from circular buffer
     /// </summary>
@@ -74,15 +75,16 @@ public class CircularBuffer <T>
     }
     private void MoveLastBufferPosition(float seconds)
     {
-        int howManyBeforeLast=(int)(howManyRecordsPerSecond*seconds);
+        int howManyBeforeLast=Mathf.RoundToInt(howManyRecordsPerSecond*seconds);
 
-        if ((bufferCurrentPosition - howManyBeforeLast) < 0)
+        int moveBy = - (howManyBeforeLast - bufferCurrentPosition) - 1;
+        if (moveBy < 0)
         {
-            bufferCurrentPosition = bufferCapacity - (howManyBeforeLast - bufferCurrentPosition);
+            bufferCurrentPosition = bufferCapacity +moveBy;
         }
         else
         {
-            bufferCurrentPosition -= howManyBeforeLast;
+            bufferCurrentPosition -= (howManyBeforeLast+1);
         }     
     }
 }

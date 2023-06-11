@@ -37,10 +37,10 @@ public class RewindManager : MonoBehaviour
     List<RewindAbstract> _rewindedObjects;
 
     /// <summary>
-    /// Call this method to rewind time by specified seconds instantly without snapshot preview
+    /// Call this method to rewind time by specified seconds instantly without snapshot preview. Usefull for one time instant rewinds.
     /// </summary>
     /// <param name="seconds">Parameter defining how many seconds should object rewind to from now (Parameter must be >=0).</param>
-    public void RewindTimeBySeconds(float seconds)
+    public void InstantRewindTimeBySeconds(float seconds)
     {
         if(seconds>HowManySecondsAvailableForRewind)
         {
@@ -52,17 +52,20 @@ public class RewindManager : MonoBehaviour
             Debug.LogError("Parameter in RewindTimeBySeconds() must have positive value!!!");
             return;
         }
-
         _rewindedObjects.ForEach(x => x.Rewind(seconds));
+        HowManySecondsAvailableForRewind -= seconds;
         BuffersRestore?.Invoke(seconds);
     }
     /// <summary>
-    /// Call this method if you want to start rewinding time with ability to preview snapshots. After done rewinding, StopRewindTimeBySeconds() must be called!!!. To update snapshot preview between, call method SetTimeSecondsInRewind()
+    /// Call this method if you want to start rewinding time with ability to preview snapshots. After done rewinding, StopRewindTimeBySeconds() must be called!!!. To update snapshot preview between, call method SetTimeSecondsInRewind().
     /// </summary>
     /// <param name="seconds">Parameter defining how many seconds before should the rewind preview rewind to (Parameter must be >=0)</param>
     /// <returns></returns>
     public void StartRewindTimeBySeconds(float seconds)
     {
+        if (IsBeingRewinded)
+            Debug.LogError("The previous rewind must be stopped by calling StopRewindTimeBySeconds() before you start another rewind");
+        
         CheckReachingOutOfBounds(seconds);
 
         rewindSeconds = seconds;
@@ -79,13 +82,27 @@ public class RewindManager : MonoBehaviour
         rewindSeconds = seconds;
     }
     /// <summary>
-    /// Call this method to stop previewing rewind state and effectively set current values to the rewind state
+    /// Call this method to stop previewing rewind state and resume normal game flow
     /// </summary>
     public void StopRewindTimeBySeconds()
     {
+        if (!IsBeingRewinded)
+            Debug.LogError("Rewind must be started before you try to stop it. StartRewindTimeBySeconds() must be called first");
+
         HowManySecondsAvailableForRewind -= rewindSeconds;
         BuffersRestore?.Invoke(rewindSeconds);
         IsBeingRewinded = false;
+    }
+    /// <summary>
+    /// Call if you want to restart the whole tracking system
+    /// </summary>
+    public void RestartTracking()
+    {
+        if (IsBeingRewinded)
+            StopRewindTimeBySeconds();
+
+        HowManySecondsAvailableForRewind = 0;
+        TrackingEnabled = true;
     }
     private void CheckReachingOutOfBounds(float seconds)
     {
@@ -100,15 +117,6 @@ public class RewindManager : MonoBehaviour
             return;
         }
     }
-    public void RestartTracking()
-    {
-        if(IsBeingRewinded)
-            StopRewindTimeBySeconds();
-
-        HowManySecondsAvailableForRewind = 0;
-        TrackingEnabled = true;
-    }
-   
     private void Awake()
     {
         _rewindedObjects = FindObjectsOfType<RewindAbstract>().ToList();
