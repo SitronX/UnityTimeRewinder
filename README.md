@@ -18,6 +18,8 @@ You have two options how to install it into your project.
 - First option is to download prepared Unity package in Github release section. After download, open your Unity project and simply open the downloaded package, import dialogue window should appear (Unity should automatically associate the package with itself). If it didnt work out for you, you can also import it thru Unity package manager.
 - Second option is to download this sample project from Github and start using it, or just import the TimeRewinder folder under Assets/TimeRewinder into your project
 
+<b>Note:</b> Unity versions 2019+ are officially supported
+
 ## Features
 
 TimeRewinder supports two types of rewinds.
