@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 public class CircularBuffer <T>
 { 
@@ -14,7 +15,7 @@ public class CircularBuffer <T>
     {
         try
         {
-            howManyRecordsPerSecond = Time.timeScale / Time.fixedDeltaTime;
+            howManyRecordsPerSecond = 1 / Time.fixedDeltaTime;
             bufferCapacity = (int)(RewindManager.Instance.HowManySecondsToTrack *howManyRecordsPerSecond);
             dataArray = new T[bufferCapacity];
             RewindManager.BuffersRestore += MoveLastBufferPosition;
@@ -61,30 +62,25 @@ public class CircularBuffer <T>
     /// <returns></returns>
     public T ReadFromBuffer(float seconds)
     {
-        int howManyBeforeLast = (int)(howManyRecordsPerSecond * seconds);
-
-        if((bufferCurrentPosition-howManyBeforeLast) <0)
-        {
-            int showingIndex = bufferCapacity - (howManyBeforeLast - bufferCurrentPosition);
-            return dataArray[showingIndex];
-        }
-        else
-        {
-            return dataArray[bufferCurrentPosition - howManyBeforeLast];
-        }
+        return dataArray[CalculateIndex(seconds)];
     }
     private void MoveLastBufferPosition(float seconds)
     {
-        int howManyBeforeLast=Mathf.RoundToInt(howManyRecordsPerSecond*seconds);
+        bufferCurrentPosition= CalculateIndex(seconds);    
+    }
+    private int CalculateIndex(float seconds)
+    {
+        double secondsRound = Math.Round(seconds, 2);
+        int howManyBeforeLast = (int)(howManyRecordsPerSecond * secondsRound);
 
-        int moveBy = - (howManyBeforeLast - bufferCurrentPosition) - 1;
+        int moveBy = bufferCurrentPosition - howManyBeforeLast;
         if (moveBy < 0)
         {
-            bufferCurrentPosition = bufferCapacity +moveBy;
+            return bufferCapacity + moveBy;
         }
         else
         {
-            bufferCurrentPosition -= (howManyBeforeLast+1);
-        }     
+            return bufferCurrentPosition- howManyBeforeLast;
+        }
     }
 }

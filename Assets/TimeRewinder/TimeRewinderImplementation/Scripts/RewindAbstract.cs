@@ -20,12 +20,19 @@ public abstract class RewindAbstract : MonoBehaviour
 
         trackedActiveStates = new CircularBuffer<bool>();
         trackedTransformValues = new CircularBuffer<TransformValues>();
-        trackedVelocities = new CircularBuffer<VelocityValues>();
-        trackedAnimationTimes = new List<CircularBuffer<AnimationValues>>();
+
+        if(body!=null||body2!=null)
+            trackedVelocities = new CircularBuffer<VelocityValues>();
+
         if (animator != null)
+        {
+            trackedAnimationTimes = new List<CircularBuffer<AnimationValues>>();
             for (int i = 0; i < animator.layerCount; i++)
                 trackedAnimationTimes.Add(new CircularBuffer<AnimationValues>());
-        trackedAudioTimes = new CircularBuffer<AudioTrackedData>();
+        }
+           
+        if(audioSource!=null)
+            trackedAudioTimes = new CircularBuffer<AudioTrackedData>();
     }
     #region ActiveState
     CircularBuffer<bool> trackedActiveStates;
