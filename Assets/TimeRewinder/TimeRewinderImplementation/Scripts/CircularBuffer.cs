@@ -7,6 +7,8 @@ public class CircularBuffer <T>
     int bufferCurrentPosition = -1;
     int bufferCapacity;
     float howManyRecordsPerSecond;
+    int lastAccessedIndex = -1;
+
 
     /// <summary>
     /// Use circular buffer structure for time rewinding
@@ -47,12 +49,21 @@ public class CircularBuffer <T>
         }
     }
     /// <summary>
-    /// Read last value that was written to buffer
+    /// Try read last value that was written to buffer
     /// </summary>
     /// <returns></returns>
-    public T ReadLastValue()
+    public bool TryReadLastValue(out T value)
     {
-        return dataArray[bufferCurrentPosition];
+        if (bufferCurrentPosition != -1)
+        {
+            value = dataArray[bufferCurrentPosition];
+            return true;
+        }
+        else
+        {
+            value = default;
+            return false;
+        }
     }
 
     /// <summary>
@@ -64,23 +75,36 @@ public class CircularBuffer <T>
     {
         return dataArray[CalculateIndex(seconds)];
     }
+    /// <summary>
+    /// Read specified value from circular buffer
+    /// </summary>
+    /// <param name="seconds">Variable defining how many seconds into the past should be read (eg. seconds=5 then function will return the values that tracked object had exactly 5 seconds ago)</param>
+    /// <param name="wasLastAccessedIndexSame">To save performance, for certain rewinds we can check if the last accessed index was the same current and choose to ignore the update</param>
+    /// <returns></returns>
+    public T ReadFromBuffer(float seconds, out bool wasLastAccessedIndexSame)
+    {
+        int index = CalculateIndex(seconds);
+
+        wasLastAccessedIndexSame = index == lastAccessedIndex;
+        lastAccessedIndex = index;
+        return dataArray[index];
+    }
     private void MoveLastBufferPosition(float seconds)
     {
         bufferCurrentPosition= CalculateIndex(seconds);    
     }
     private int CalculateIndex(float seconds)
     {
-        double secondsRound = Math.Round(seconds, 2);
-        int howManyBeforeLast = (int)(howManyRecordsPerSecond * secondsRound);
-
+        int howManyBeforeLast = (int)(howManyRecordsPerSecond * (seconds - 0.001));
         int moveBy = bufferCurrentPosition - howManyBeforeLast;
+       
         if (moveBy < 0)
         {
             return bufferCapacity + moveBy;
         }
         else
         {
-            return bufferCurrentPosition- howManyBeforeLast;
+            return bufferCurrentPosition - howManyBeforeLast;
         }
     }
 }

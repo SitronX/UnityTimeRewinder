@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using UnityEngine;
 
@@ -35,6 +36,7 @@ public class RewindManager : MonoBehaviour
 
     float rewindSeconds = 0;
     List<RewindAbstract> _rewindedObjects;
+    List<Tuple<RewindAbstract, OutOfBoundsBehaviour>> _lateAddedRewindedObjects = new List<Tuple<RewindAbstract, OutOfBoundsBehaviour>>();
 
     /// <summary>
     /// Call this method to rewind time by specified seconds instantly without snapshot preview. Usefull for one time instant rewinds.
@@ -53,6 +55,14 @@ public class RewindManager : MonoBehaviour
             return;
         }
         _rewindedObjects.ForEach(x => x.Rewind(seconds));
+        _lateAddedRewindedObjects.ForEach(x =>
+        {
+            x.Item1.Rewind(rewindSeconds);
+
+            if (x.Item1.IsManagerTrackingActiveState)
+                x.Item1.RestoreObjectActiveState(rewindSeconds);
+        });
+
         HowManySecondsAvailableForRewind -= seconds;
         BuffersRestore?.Invoke(seconds);
     }
@@ -117,6 +127,30 @@ public class RewindManager : MonoBehaviour
             return;
         }
     }
+    public enum OutOfBoundsBehaviour
+    {
+        /// <summary>
+        /// Only disables the object when out of bounds
+        /// </summary>
+        Disable,
+        /// <summary>
+        /// Disables the object when out of bounds. Then, if the game resumes in out of bound state, the object is destroyed
+        /// </summary>
+        DisableDestroy
+    }
+    /// <summary>
+    /// Lets you add object to track pool even when game is already running.
+    /// </summary>
+    /// <param name="objectToRewind"></param>
+    /// <param name="automaticDestroy">When you rewind before this object is added for tracking, you can choose if object gets disabled or is detroyed when resuming the game.</param>
+    public void AddObjectForTracking(RewindAbstract objectToRewind, OutOfBoundsBehaviour outOfBoundsBehaviour)
+    {
+        if (!_lateAddedRewindedObjects.Any(x => x.Item1 == objectToRewind))
+        {
+            objectToRewind.MainInit();
+            _lateAddedRewindedObjects.Add(new Tuple<RewindAbstract, OutOfBoundsBehaviour>(objectToRewind, outOfBoundsBehaviour));
+        }
+    }
     private void Awake()
     {
         _rewindedObjects = FindObjectsOfType<RewindAbstract>().ToList();
@@ -139,11 +173,40 @@ public class RewindManager : MonoBehaviour
         if (IsBeingRewinded)
         {
             _rewindedObjects.ForEach(x => x.Rewind(rewindSeconds));
+
+            _lateAddedRewindedObjects.ForEach(x =>
+            {
+                x.Item1.Rewind(rewindSeconds);
+
+                if (x.Item1.IsManagerTrackingActiveState)
+                    x.Item1.RestoreObjectActiveState(rewindSeconds);
+            });
         }
         else 
         {
             _rewindedObjects.ForEach(x => x.Track());
 
+            for(int i=0;i<_lateAddedRewindedObjects.Count;i++)
+            {
+                if (!_lateAddedRewindedObjects[i].Item1.isActiveAndEnabled&& _lateAddedRewindedObjects[i].Item2==OutOfBoundsBehaviour.DisableDestroy)
+                {
+                    RewindAbstract objectToDestroy = _lateAddedRewindedObjects[i].Item1;
+                    _lateAddedRewindedObjects.Remove(_lateAddedRewindedObjects[i]);
+                    Destroy(objectToDestroy.gameObject);
+                    continue;
+                }
+
+                _lateAddedRewindedObjects[i].Item1.Track();
+
+                if (_lateAddedRewindedObjects[i].Item1.IsManagerTrackingActiveState)
+                    _lateAddedRewindedObjects[i].Item1.TrackObjectActiveState();
+                else if (!_lateAddedRewindedObjects[i].Item1.IsActiveStateTracked)
+                {
+                    _lateAddedRewindedObjects[i].Item1.IsManagerTrackingActiveState = true;
+                    _lateAddedRewindedObjects[i].Item1.TrackObjectActiveState();
+                }
+            }
+  
             if(TrackingEnabled)
                 HowManySecondsAvailableForRewind = Mathf.Min(HowManySecondsAvailableForRewind + Time.fixedDeltaTime, HowManySecondsToTrack);
         }

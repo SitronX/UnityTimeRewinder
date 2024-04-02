@@ -9,7 +9,7 @@ Rewind time in Unity with ease! While there are certain frameworks that let you 
 
 **Customizability is one of the main points of this project, so it can be used in any of your custom Unity projects and you can track and rewind anything you want!**
 
-Straight from the box you can start rewinding **Object active states, Transforms (position, rotation, scale), velocities, animators (also all animator layers), audios and particle systems**.
+Straight from the box you can start rewinding **Object active states, Transforms (position, rotation, scale), velocities, animators (also all animator layers and parameters), audios and particle systems**.
 
 ## How to install
 
@@ -53,12 +53,12 @@ https://user-images.githubusercontent.com/68167377/196215651-c3002e8b-a722-4bb6-
 
 https://user-images.githubusercontent.com/68167377/196215735-e3e612a4-aa69-40e2-8e4f-3fd68669b667.mp4
 
+https://github.com/SitronX/UnityTimeRewinder/assets/68167377/a4e742ff-1bd2-4108-a6bb-eed39d1c62e6
+
 https://user-images.githubusercontent.com/68167377/196240813-ba4c6b79-ebec-461e-9bbe-335cc75a7af7.mp4
 
 
-
 And here is example and maybe motivation how it could look in actual game (mobile game), where you customize it for your needs :)
-
 
 
 https://user-images.githubusercontent.com/68167377/196215814-45e4667b-748a-4eff-a2ce-8c62b9d90f29.mp4
@@ -71,3 +71,8 @@ Here you can watch nice video by SpeedTutor covering this asset
 
 
 
+## Shameless plug
+
+The main propeler of this project is my released game where you can find this rewind system in practise. This logical game is available for free on [Google Play](https://play.google.com/store/apps/details?id=com.SitronCOR.Forcel).
+
+[![GooglePlay](https://github.com/SitronX/UnityTimeRewinder/assets/68167377/0723f83b-cb70-4777-a85d-67a7bb138696)](https://play.google.com/store/apps/details?id=com.SitronCOR.Forcel)
