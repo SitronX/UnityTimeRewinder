@@ -73,6 +73,8 @@ Here you can watch nice video by SpeedTutor covering this asset
 
 ## Shameless plug
 
-The main propeler of this project is my released game where you can find this rewind system in practise. This logical game is available for free on [Google Play](https://play.google.com/store/apps/details?id=com.SitronCOR.Forcel).
+The main propeler of this project is my released game where you can find this rewind system in practice. This physics based puzzle game is available for free on [Google Play](https://play.google.com/store/apps/details?id=com.SitronCOR.Forcel).
 
 [![GooglePlay](https://github.com/SitronX/UnityTimeRewinder/assets/68167377/0723f83b-cb70-4777-a85d-67a7bb138696)](https://play.google.com/store/apps/details?id=com.SitronCOR.Forcel)
+
+<b>Thank you if you decide to try it out :)</b>
