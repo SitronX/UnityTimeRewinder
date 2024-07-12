@@ -57,7 +57,7 @@ https://github.com/SitronX/UnityTimeRewinder/assets/68167377/a4e742ff-1bd2-4108-
 
 https://user-images.githubusercontent.com/68167377/196240813-ba4c6b79-ebec-461e-9bbe-335cc75a7af7.mp4
 
-https://github.com/user-attachments/assets/b9e723f0-cfc1-4458-8d1a-577c29fe5591
+https://github.com/user-attachments/assets/5c8473c5-e45a-4ea2-bc36-22b67b658afe
 
 And here is example and maybe motivation how it could look in actual game (mobile game), where you customize it for your needs :)
 
@@ -72,7 +72,7 @@ Here you can watch nice video by SpeedTutor covering this asset
 
 ## License
 
-This asset is completely free under the [MIT license](https://github.com/SitronX/UnityFingerCamera?tab=MIT-1-ov-file#readme), so you can use it as you wish :)
+This asset is completely free under the [MIT license](https://github.com/SitronX/UnityTimeRewinder?tab=MIT-1-ov-file), so you can use it as you wish :)
 
 If you like my projects, please consider buying me a coffee to support my work. All donations will be greatly appreaciated :)
 
