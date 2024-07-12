@@ -7,7 +7,7 @@
 
 Rewind time in Unity with ease! While there are certain frameworks that let you rewind time in Unity, they are usually quite restrictive and hard to modify. I faced these problems myself when i needed to add time rewind mechanics in my game and none of the solutions that i have found were good enough. That is why i decided to start this open source project that i hope you find usefull. Time Rewinder uses highly efficient circular buffer implementation to store and retrieve the rewinded values.
 
-**Customizability is one of the main points of this project, so it can be used in any of your custom Unity projects and you can track and rewind anything you want!**
+**Customizability is one of the main points of this project, so it can be used in any of your custom Unity projects and you can track and rewind anything you want, even Shaders!**
 
 Straight from the box you can start rewinding **Object active states, Transforms (position, rotation, scale), velocities, animators (also all animator layers and parameters), audios and particle systems**.
 
@@ -57,6 +57,7 @@ https://github.com/SitronX/UnityTimeRewinder/assets/68167377/a4e742ff-1bd2-4108-
 
 https://user-images.githubusercontent.com/68167377/196240813-ba4c6b79-ebec-461e-9bbe-335cc75a7af7.mp4
 
+https://github.com/user-attachments/assets/b9e723f0-cfc1-4458-8d1a-577c29fe5591
 
 And here is example and maybe motivation how it could look in actual game (mobile game), where you customize it for your needs :)
 
@@ -69,7 +70,13 @@ Here you can watch nice video by SpeedTutor covering this asset
 
 [![Watch the video](https://img.youtube.com/vi/4BiPytgJmVo/maxresdefault.jpg)](https://www.youtube.com/watch?v=4BiPytgJmVo)
 
+## License
 
+This asset is completely free under the [MIT license](https://github.com/SitronX/UnityFingerCamera?tab=MIT-1-ov-file#readme), so you can use it as you wish :)
+
+If you like my projects, please consider buying me a coffee to support my work. All donations will be greatly appreaciated :)
+
+[![BuyMeACoffe](https://github.com/user-attachments/assets/d02ae4a8-3c28-4b01-8b15-807871893856)](https://buymeacoffee.com/sitronx)
 
 ## Shameless plug
 

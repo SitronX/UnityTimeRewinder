@@ -188,6 +188,12 @@ public class RewindManager : MonoBehaviour
 
             for(int i=0;i<_lateAddedRewindedObjects.Count;i++)
             {
+                if (_lateAddedRewindedObjects[i].Item1 == null)
+                {
+                    _lateAddedRewindedObjects.Remove(_lateAddedRewindedObjects[i]);
+                    continue;
+                }
+
                 if (!_lateAddedRewindedObjects[i].Item1.isActiveAndEnabled&& _lateAddedRewindedObjects[i].Item2==OutOfBoundsBehaviour.DisableDestroy)
                 {
                     RewindAbstract objectToDestroy = _lateAddedRewindedObjects[i].Item1;
